@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mi Entreno</title>
+  <meta name="description" content="Mi app personal de ejercicios en casa, peso y progreso.">
+  <meta name="theme-color" content="#16a34a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Mi Entreno">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><img src="icons/icon.svg" alt="" width="26" height="26"> Mi Entreno</div>
+    <button id="sync-chip" class="chip-sync" data-action="sync-chip">☁︎ Sin Drive</button>
+  </header>
+
+  <main id="view"></main>
+
+  <nav class="nav">
+    <button data-tab="hoy"><span>🏠</span>Hoy</button>
+    <button data-tab="entrenar"><span>💪</span>Entrenar</button>
+    <button data-tab="ejercicios"><span>📋</span>Ejercicios</button>
+    <button data-tab="progreso"><span>📈</span>Progreso</button>
+    <button data-tab="ajustes"><span>⚙️</span>Ajustes</button>
+  </nav>
+
+  <div id="modal" class="modal" role="dialog" aria-modal="true"><div class="sheet" id="modal-body"></div></div>
+  <div id="player" class="player"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="exercises.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
