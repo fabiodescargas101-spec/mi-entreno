@@ -226,3 +226,42 @@ window.ROUTINES = [
     desc: 'Para después de entrenar o los días de descanso.',
     items: [{ ex: 'cat-cow', n: 40 }, { ex: 'child-pose', n: 40 }, { ex: 'cobra', n: 30 }, { ex: 'thoracic-rotation', n: 8 }, { ex: 'hip-flexor-stretch', n: 30 }, { ex: 'hamstring-stretch', n: 40 }, { ex: 'quad-stretch', n: 30 }, { ex: 'figure-four', n: 30 }, { ex: 'chest-stretch', n: 30 }] },
 ];
+
+/* ---------- Nombres de guerra ----------
+ * alias = nombre épico que se muestra; el nombre real queda debajo para saber qué hacer. */
+const ALIAS = {
+  'jumping-jacks': 'Saltos del Recluta', 'high-knees': 'Carrera del Warthog', 'butt-kicks': 'Talonazos del Grunt',
+  'burpees': 'Burpees del Infierno', 'mountain-climbers': 'Escalada al Anillo', 'skater-jumps': 'Esquive Ninja',
+  'shadow-boxing': 'Glory Kill de Sombra', 'jump-rope': 'Comba del Dojo', 'squat': 'Sentadilla Spartan',
+  'jump-squat': 'Salto de Cápsula ODST', 'sumo-squat': 'Postura del Brumak', 'lunge': 'Avance del Pelotón Delta',
+  'reverse-lunge': 'Retirada Táctica', 'wall-sit': 'Cobertura de Gears', 'glute-bridge': 'Puente de Mando',
+  'single-leg-bridge': 'Puente de Mando Solitario', 'calf-raise': 'Gemelos de Titanio', 'donkey-kick': 'Coz del Locust',
+  'side-leg-raise': 'Patada Lateral Hayabusa', 'step-up': 'Asalto a la Trinchera', 'curtsy-lunge': 'Reverencia Ninja',
+  'pushup': 'Flexión Spartan', 'knee-pushup': 'Flexión del Recluta', 'incline-pushup': 'Flexión de Barricada',
+  'wide-pushup': 'Flexión Escudo de Energía', 'diamond-pushup': 'Flexión Diamante del Dragón', 'decline-pushup': 'Flexión de Caída Orbital',
+  'pike-pushup': 'Pica del Clan Hayabusa', 'chair-dips': 'Fondos de Trinchera', 'plank-shoulder-tap': 'Toque de Escudo',
+  'arm-circles': 'Molinete Nunchaku', 'inchworm': 'Gusano Locust', 'superman': 'Vuelo del Pelican',
+  'reverse-snow-angel': 'Alas del King Raven', 'swimmer': 'Nado en Lodo Tóxico', 'bird-dog': 'Perro de Guerra',
+  'plank': 'Bloqueo de Armadura', 'side-plank': 'Guardia Lateral', 'crunch': 'Abdominal del Recluta',
+  'bicycle-crunch': 'Bicicleta Mongoose', 'leg-raise': 'Ascensor Gravitatorio', 'russian-twist': 'Giro de Katana',
+  'flutter-kicks': 'Tijeras del Dragón', 'dead-bug': 'Insecto del Flood', 'v-up': 'V de Victoria',
+  'reverse-crunch': 'Repliegue Ninja', 'cat-cow': 'Gato del Dojo', 'child-pose': 'Reposo del Guerrero',
+  'cobra': 'Cobra Hayabusa', 'hip-flexor-stretch': 'Rodilla en Tierra', 'hamstring-stretch': 'Tensado del Arco',
+  'quad-stretch': 'Flamenco del Centinela', 'chest-stretch': 'Apertura de Coraza', 'thoracic-rotation': 'Giro de Radar',
+  'figure-four': 'Figura 4 del Francotirador',
+};
+window.EXERCISES.forEach((e) => { if (ALIAS[e.id]) e.alias = ALIAS[e.id]; });
+
+const MISSIONS = {
+  'r-principiante': ['Pelotón Delta · Novato', 'Tu primera misión. Cuerpo completo, sin saltos difíciles. Todo soldado empieza aquí.'],
+  'r-intermedio': ['Entrenamiento Spartan', 'Fuerza y cardio en tres oleadas. El programa estándar de un supersoldado.'],
+  'r-avanzado': ['Protocolo Slayer', 'Solo para veteranos. Tres oleadas sin piedad. Rasga y desgarra.'],
+  'r-hiit': ['Sprint Spartan', 'Intervalos explosivos para quemar el máximo de calorías en poco tiempo.'],
+  'r-cardio-suave': ['Sigilo Ninja', 'Cardio sin saltos: ni los vecinos ni tus rodillas se enterarán.'],
+  'r-abs': ['Abs Spartanas', 'Abdomen de acero: recto, oblicuos y zona profunda. Coraza natural.'],
+  'r-piernas': ['Piernas de Titán', 'Tren inferior completo con énfasis en glúteo. Mañana las escaleras serán un jefe final.'],
+  'r-superior': ['Bloqueo de Armadura Spartan', 'Pecho, brazos y hombros solo con tu peso y una silla.'],
+  'r-espalda': ['Coraza de Gears', 'Espalda fuerte y postura de soldado. Para aguantar detrás de cualquier cobertura.'],
+  'r-estira': ['Meditación del Dragón', 'Estiramientos y movilidad para después de la batalla o los días de descanso.'],
+};
+window.ROUTINES.forEach((r) => { if (MISSIONS[r.id]) [r.name, r.desc] = MISSIONS[r.id]; });

@@ -16,14 +16,19 @@ const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const toNum = (v) => { const n = parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : null; };
 
 const EX = Object.fromEntries(window.EXERCISES.map((e) => [e.id, e]));
-const LEVELS = ['', 'Fácil', 'Medio', 'Difícil'];
+const LEVELS = ['', 'Normal', 'Heroico', 'Legendario'];
+const A = window.AVATAR;
+const exName = (ex) => ex.alias || ex.name;
+const exSub = (ex) => (ex.alias && ex.alias !== ex.name ? ex.name : '');
+const avatarId = () => state.profile.avatar || 'spartan';
+const totalXP = () => state.sessions.reduce((a, s) => a + (s.xp ?? Math.round(s.kcal + 25)), 0);
 
 // ============ Datos ============
 const KEY = 'mientreno:datos:v1';
 const SYNC_KEY = 'mientreno:sync:v1';
 const defaults = () => ({
   version: 1, updatedAt: 0,
-  profile: { name: '', sex: '', birthYear: '', heightCm: '', startWeight: '', goalWeight: '', goalDate: '' },
+  profile: { name: '', avatar: 'spartan', sex: '', birthYear: '', heightCm: '', startWeight: '', goalWeight: '', goalDate: '' },
   weights: [],         // { date, kg, waist? }
   sessions: [],        // { id, date (ISO), routineId, routineName, durationSec, activeSec, kcal, exercises: [{ id, reps?, sec }] }
   customRoutines: [],  // misma forma que ROUTINES
@@ -145,9 +150,8 @@ const stat = (val, label) => `<div class="stat"><b>${val}</b><small>${label}</sm
 function renderHoy() {
   const g = goalInfo();
   const wk = weekStats(), st = streak();
-  const name = state.profile.name ? `, ${esc(state.profile.name)}` : '';
-  const h = new Date().getHours();
-  const hello = h < 13 ? 'Buenos días' : h < 21 ? 'Buenas tardes' : 'Buenas noches';
+  const callsign = esc(state.profile.name || A.CLASSES[avatarId()].name);
+  const xp = totalXP(), rk = A.rankFor(xp);
   let goalCard;
   if (g.current == null) {
     goalCard = `<div class="card accent-card"><h3>Empieza aquí</h3><p>Registra tu peso y ponte un objetivo para ver cuánto te falta.</p>
@@ -182,16 +186,25 @@ function renderHoy() {
   const suggested = (last && findRoutine(last.routineId)) || window.ROUTINES[0];
   const loggedToday = state.weights.some((w) => w.date === todayStr());
   view().innerHTML = `
-    <h1 class="hello">${hello}${name} 👋</h1>
+    <div class="hero card">
+      <div class="hero-fig">${A.portrait(avatarId())}</div>
+      <div class="hero-info">
+        <small class="kicker">${A.pick(A.LINES.hello)}</small>
+        <h1 class="callsign">${callsign}</h1>
+        <div class="rank">${rk.icon} ${esc(rk.name)}</div>
+        <div class="xpbar"><span style="width:${rk.pct.toFixed(1)}%"></span></div>
+        <small class="muted">${num(xp, 0)} XP${rk.next ? ` · ${num(rk.toNext, 0)} para <b>${esc(rk.next.name)}</b>` : ' · rango máximo'}</small>
+      </div>
+    </div>
     ${goalCard}
     <div class="row">
-      <button class="btn big-btn" data-action="routine" data-id="${esc(suggested.id)}">▶ Entrenar</button>
+      <button class="btn big-btn" data-action="routine" data-id="${esc(suggested.id)}">▶ Desplegar</button>
       <button class="btn ghost big-btn" data-action="weight">${loggedToday ? '✓ Peso de hoy' : '⚖️ Registrar peso'}</button>
     </div>
-    <div class="card"><h3>Esta semana</h3>
+    <div class="card"><h3>Informe semanal</h3>
       <div class="stats">${stat(wk.count, 'entrenos')}${stat(Math.round(wk.sec / 60), 'minutos')}${stat(num(wk.kcal, 0), 'kcal')}${stat(st, st === 1 ? 'día seguido' : 'días seguidos')}</div>
     </div>
-    ${last ? `<div class="card"><h3>Último entreno</h3><p><b>${esc(last.routineName)}</b></p><p class="muted">${new Date(last.date).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })} · ${fmtMin(last.durationSec)} · ${num(last.kcal, 0)} kcal</p></div>` : ''}
+    ${last ? `<div class="card"><h3>Última misión</h3><p><b>${esc(last.routineName)}</b></p><p class="muted">${new Date(last.date).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })} · ${fmtMin(last.durationSec)} · ${num(last.kcal, 0)} kcal</p></div>` : ''}
   `;
 }
 
@@ -206,10 +219,10 @@ function routineCard(r, custom) {
 }
 function renderEntrenar() {
   view().innerHTML = `
-    <h1>Entrenar</h1>
-    <div class="row between"><h2>Mis rutinas</h2><button class="btn small" data-action="new-routine">+ Crear rutina</button></div>
-    ${state.customRoutines.length ? state.customRoutines.map((r) => routineCard(r, true)).join('') : '<p class="muted">Aún no tienes rutinas propias. Crea una con los ejercicios que quieras.</p>'}
-    <h2>Rutinas</h2>
+    <h1>Misiones</h1>
+    <div class="row between"><h2>Mis misiones</h2><button class="btn small" data-action="new-routine">+ Crear misión</button></div>
+    ${state.customRoutines.length ? state.customRoutines.map((r) => routineCard(r, true)).join('') : '<p class="muted">Aún no tienes misiones propias. Crea una con los ejercicios que quieras.</p>'}
+    <h2>Campaña</h2>
     ${window.ROUTINES.map((r) => routineCard(r, false)).join('')}`;
 }
 function showRoutine(id) {
@@ -220,8 +233,8 @@ function showRoutine(id) {
     <h2>${esc(r.name)}</h2>
     ${r.desc ? `<p class="muted">${esc(r.desc)}</p>` : ''}
     <div class="stats">${stat(fmtMin(e.total), 'duración')}${stat('~' + num(e.kcal, 0), 'kcal')}${stat(r.rounds || 1, 'vueltas')}${stat(r.rest + ' s', 'descanso')}</div>
-    <ol class="ex-list">${r.items.map((it) => { const ex = EX[it.ex]; if (!ex) return ''; return `<li data-action="ex" data-id="${ex.id}"><span>${esc(ex.name)}</span><b>${ex.type === 'reps' ? '×' + it.n : it.n + ' s'}${ex.perSide ? ' <small>por lado</small>' : ''}</b></li>`; }).join('')}</ol>
-    <button class="btn block big-btn" data-action="start" data-id="${esc(r.id)}">▶ Empezar</button>
+    <ol class="ex-list">${r.items.map((it) => { const ex = EX[it.ex]; if (!ex) return ''; return `<li data-action="ex" data-id="${ex.id}"><span class="mini-fig">${A.figure(ex.id, { avatar: avatarId(), still: true })}</span><span>${esc(exName(ex))}${exSub(ex) ? `<small class="muted sub">${esc(exSub(ex))}</small>` : ''}</span><b>${ex.type === 'reps' ? '×' + it.n : it.n + ' s'}${ex.perSide ? ' <small>por lado</small>' : ''}</b></li>`; }).join('')}</ol>
+    <button class="btn block big-btn" data-action="start" data-id="${esc(r.id)}">▶ Iniciar misión</button>
     <div class="row">
       ${custom ? `<button class="btn ghost" data-action="edit-routine" data-id="${esc(r.id)}">Editar</button><button class="btn ghost danger" data-action="del-routine" data-id="${esc(r.id)}">Borrar</button>`
         : `<button class="btn ghost" data-action="copy-routine" data-id="${esc(r.id)}">Copiar y personalizar</button>`}
@@ -242,18 +255,18 @@ function renderDraft() {
     const q = pickQuery.toLowerCase();
     openModal(`<h2>Añadir ejercicio</h2>
       <input id="pick-q" type="search" placeholder="Buscar…" value="${esc(pickQuery)}">
-      <div class="pick-list">${window.EXERCISES.filter((e) => !q || e.name.toLowerCase().includes(q) || e.groups.join(' ').toLowerCase().includes(q))
-        .map((e) => `<button class="pick" data-action="pick" data-id="${e.id}"><span>${esc(e.name)}</span><small class="muted">${e.groups.join(', ')}</small></button>`).join('')}</div>
+      <div class="pick-list">${window.EXERCISES.filter((e) => !q || (e.name + ' ' + exName(e)).toLowerCase().includes(q) || e.groups.join(' ').toLowerCase().includes(q))
+        .map((e) => `<button class="pick" data-action="pick" data-id="${e.id}"><span>${esc(exName(e))}</span><small class="muted">${esc(e.name)} · ${e.groups.join(', ')}</small></button>`).join('')}</div>
       <button class="btn ghost block" data-action="pick-cancel">Volver</button>`);
     return;
   }
   const e = routineEstimate(draft);
-  openModal(`<h2>${draft.name ? 'Editar rutina' : 'Nueva rutina'}</h2>
-    <label>Nombre<input id="d-name" value="${esc(draft.name)}" placeholder="Ej.: Mi rutina de mañana"></label>
+  openModal(`<h2>${draft.name ? 'Editar misión' : 'Nueva misión'}</h2>
+    <label>Nombre<input id="d-name" value="${esc(draft.name)}" placeholder="Ej.: Operación Madrugada"></label>
     <div class="row"><label>Descanso (s)<input id="d-rest" type="number" min="0" max="300" value="${draft.rest}"></label>
     <label>Vueltas<input id="d-rounds" type="number" min="1" max="10" value="${draft.rounds || 1}"></label></div>
     <ol class="ex-list edit">${draft.items.map((it, i) => { const ex = EX[it.ex]; return `<li>
-      <span>${esc(ex ? ex.name : it.ex)}<small class="muted"> ${ex && ex.type === 'reps' ? 'reps' : 'seg'}${ex && ex.perSide ? ' por lado' : ''}</small></span>
+      <span>${esc(ex ? exName(ex) : it.ex)}<small class="muted"> ${ex && ex.type === 'reps' ? 'reps' : 'seg'}${ex && ex.perSide ? ' por lado' : ''}</small></span>
       <input type="number" min="1" max="600" value="${it.n}" data-n="${i}">
       <span class="mini"><button data-action="mv" data-i="${i}" data-d="-1" aria-label="Subir">↑</button><button data-action="mv" data-i="${i}" data-d="1" aria-label="Bajar">↓</button><button data-action="rm" data-i="${i}" aria-label="Quitar">✕</button></span>
     </li>`; }).join('')}</ol>
@@ -272,7 +285,7 @@ function readDraftInputs() {
 // ---------- EJERCICIOS ----------
 let exQuery = '', exGroup = '';
 function renderEjercicios() {
-  view().innerHTML = `<h1>Ejercicios</h1>
+  view().innerHTML = `<h1>Arsenal</h1>
     <input id="ex-q" type="search" placeholder="Buscar ejercicio…" value="${esc(exQuery)}">
     <div class="chips">${['', ...window.GROUPS].map((g) => `<button class="chip ${g === exGroup ? 'on' : ''}" data-action="group" data-g="${esc(g)}">${g || 'Todos'}</button>`).join('')}</div>
     <div id="ex-list"></div>`;
@@ -280,15 +293,16 @@ function renderEjercicios() {
 }
 function renderExList() {
   const q = exQuery.toLowerCase(), kg = currentWeight();
-  const list = window.EXERCISES.filter((e) => (!exGroup || e.groups.includes(exGroup)) && (!q || e.name.toLowerCase().includes(q)));
+  const list = window.EXERCISES.filter((e) => (!exGroup || e.groups.includes(exGroup)) && (!q || (e.name + ' ' + exName(e)).toLowerCase().includes(q)));
   $('#ex-list').innerHTML = list.length ? list.map((e) => `<button class="card ex-row" data-action="ex" data-id="${e.id}">
-      <div><b>${esc(e.name)}</b><small class="muted">${e.groups.join(' · ')}</small></div>
+      <span class="mini-fig">${A.figure(e.id, { avatar: avatarId(), still: true })}</span>
+      <div class="grow"><b>${esc(exName(e))}</b><small class="muted">${esc(e.name)} · ${e.groups.join(' · ')}</small></div>
       <div class="right"><span class="tag lvl${e.level}">${LEVELS[e.level]}</span><small class="muted">${num(kcalFor(e.met, 60, kg), 1)} kcal/min</small></div>
     </button>`).join('') : '<p class="muted">No hay ejercicios con ese filtro.</p>';
 }
 function showExercise(id) {
   const e = EX[id]; if (!e) return;
-  openModal(`<h2>${esc(e.name)}</h2>
+  openModal(`<div class="fig-stage">${A.figure(e.id, { avatar: avatarId() })}</div><h2 class="mb0">${esc(exName(e))}</h2>${exSub(e) ? `<p class="muted mt0">${esc(exSub(e))}</p>` : ''}
     <div class="row wrap">${e.groups.map((g) => `<span class="tag">${g}</span>`).join('')}<span class="tag lvl${e.level}">${LEVELS[e.level]}</span></div>
     <ol class="steps">${e.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>
     ${e.tip ? `<p class="tip">💡 ${esc(e.tip)}</p>` : ''}
@@ -341,8 +355,8 @@ function renderProgreso() {
       ${ws.length ? `<ul class="log">${ws.slice().reverse().slice(0, 30).map((w, i, arr) => { const prev = arr[i + 1]; const d = prev ? w.kg - prev.kg : 0;
         return `<li><span>${fmtDay(w.date, { weekday: 'short', day: 'numeric', month: 'short', year: '2-digit' })}</span><b>${num(w.kg)} kg</b><small class="${d < 0 ? 'down' : d > 0 ? 'up' : 'muted'}">${prev ? (d > 0 ? '+' : '') + num(d) : ''}</small>${w.waist ? `<small class="muted">cintura ${num(w.waist)}</small>` : '<small></small>'}<button class="x" data-action="del-weight" data-date="${w.date}" aria-label="Borrar">✕</button></li>`; }).join('')}</ul>` : '<p class="muted">Sin registros todavía.</p>'}
     </div>
-    <div class="card"><h3>Historial de entrenos</h3>
-      ${sessions.length ? `<ul class="log">${sessions.slice(0, 40).map((s) => `<li><span>${new Date(s.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span><b class="grow">${esc(s.routineName)}</b><small>${fmtMin(s.durationSec)}</small><small>${num(s.kcal, 0)} kcal</small><button class="x" data-action="del-session" data-id="${s.id}" aria-label="Borrar">✕</button></li>`).join('')}</ul>` : '<p class="muted">Aún no has entrenado. ¡Hoy es buen día!</p>'}
+    <div class="card"><h3>Historial de misiones</h3>
+      ${sessions.length ? `<ul class="log">${sessions.slice(0, 40).map((s) => `<li><span>${new Date(s.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span><b class="grow">${esc(s.routineName)}</b><small>${fmtMin(s.durationSec)}</small><small>${num(s.kcal, 0)} kcal</small><button class="x" data-action="del-session" data-id="${s.id}" aria-label="Borrar">✕</button></li>`).join('')}</ul>` : '<p class="muted">Ninguna misión todavía. El campo de batalla te espera.</p>'}
     </div>`;
 }
 function weightModal() {
@@ -362,8 +376,11 @@ function renderAjustes() {
   const origin = location.origin.startsWith('http') ? location.origin : '(abre la app desde su dirección web)';
   const last = sync.lastSyncTime ? new Date(sync.lastSyncTime).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' }) : 'nunca';
   view().innerHTML = `<h1>Ajustes</h1>
+    <div class="card"><h3>Tu avatar</h3>
+      <div class="avatars">${Object.entries(A.CLASSES).map(([id, c]) => `<button class="avatar-opt ${avatarId() === id ? 'on' : ''}" data-action="avatar" data-id="${id}">${A.figure('squat', { avatar: id, dur: 2.2 })}<b>${c.name}</b><small>${esc(c.desc)}</small></button>`).join('')}</div>
+    </div>
     <form class="card" id="profile-form"><h3>Perfil y objetivo</h3>
-      <label>Nombre<input name="name" value="${esc(p.name)}"></label>
+      <label>Nombre en clave<input name="name" value="${esc(p.name)}" placeholder="Ej.: Jefe, Lobo, Hayabusa…"></label>
       <div class="row"><label>Altura (cm)<input name="heightCm" type="text" inputmode="decimal" value="${esc(p.heightCm)}"></label>
       <label>Año de nacimiento<input name="birthYear" type="number" value="${esc(p.birthYear)}"></label></div>
       <label>Sexo (para estimar tu gasto diario)<select name="sex"><option value="">—</option><option value="h" ${p.sex === 'h' ? 'selected' : ''}>Hombre</option><option value="m" ${p.sex === 'm' ? 'selected' : ''}>Mujer</option></select></label>
@@ -442,9 +459,9 @@ async function startWorkout(id) {
 }
 function announce() {
   const s = P.steps[P.i]; if (!s) return;
-  if (s.kind === 'prep') say(`Prepárate. Primero: ${P.steps[1]?.ex?.name || ''}`);
-  else if (s.kind === 'ex') say(s.ex.type === 'reps' ? `${s.ex.name}. ${s.n} repeticiones${s.ex.perSide ? ' por lado' : ''}` : `${s.ex.name}. ${s.n} segundos${s.ex.perSide ? ' por lado' : ''}`);
-  else if (s.kind === 'rest') { const nx = P.steps[P.i + 1]; say(`Descansa. Siguiente: ${nx?.ex?.name || ''}`); }
+  if (s.kind === 'prep') say(`Despliegue en diez segundos. Primero: ${P.steps[1]?.ex ? exName(P.steps[1].ex) : ''}`);
+  else if (s.kind === 'ex') say(s.ex.type === 'reps' ? `${exName(s.ex)}. ${s.n} repeticiones${s.ex.perSide ? ' por lado' : ''}` : `${exName(s.ex)}. ${s.n} segundos${s.ex.perSide ? ' por lado' : ''}`);
+  else if (s.kind === 'rest') { const nx = P.steps[P.i + 1]; say(`${P.restLine} Siguiente: ${nx?.ex ? exName(nx.ex) : ''}`); }
 }
 function tick() {
   const now = performance.now();
@@ -466,7 +483,7 @@ function recordStep() {
   const sec = Math.min(P.elapsed, cap);
   P.log.push({ id: s.ex.id, reps: s.ex.type === 'reps' ? s.n : undefined, sec: Math.round(sec), kcal: kcalFor(s.ex.met, sec) });
 }
-function nextStep() { recordStep(); P.i++; P.elapsed = 0; P.beeped = {}; if (P.i >= P.steps.length) return finishWorkout(); announce(); renderPlayer(); }
+function nextStep() { recordStep(); P.i++; P.elapsed = 0; P.beeped = {}; P.restLine = A.pick(A.LINES.rest); if (P.i >= P.steps.length) return finishWorkout(); announce(); renderPlayer(); }
 function prevStep() {
   if (P.i <= 1) { P.elapsed = 0; P.beeped = {}; renderPlayer(); return; }
   let j = P.i - 1; if (P.steps[j].kind === 'rest') j--;
@@ -484,17 +501,24 @@ function saveSessionFromLog() {
   const active = P.log.reduce((a, l) => a + l.sec, 0);
   const restSec = Math.max(0, P.total - active);
   const kcal = P.log.reduce((a, l) => a + l.kcal, 0) + kcalFor(1.5, restSec);
-  const s = { id: uid(), date: new Date(P.startedAt).toISOString(), routineId: P.r.id, routineName: P.r.name, durationSec: Math.round(P.total), activeSec: Math.round(active), kcal: Math.round(kcal), exercises: P.log.map(({ id, reps, sec }) => ({ id, reps, sec })) };
+  const s = { id: uid(), date: new Date(P.startedAt).toISOString(), routineId: P.r.id, routineName: P.r.name, durationSec: Math.round(P.total), activeSec: Math.round(active), kcal: Math.round(kcal), xp: Math.round(kcal + 25 + (P.i >= P.steps.length ? 25 : 0)), exercises: P.log.map(({ id, reps, sec }) => ({ id, reps, sec })) };
   state.sessions.push(s); save(); return s;
 }
 function finishWorkout() {
   stopPlayer();
+  const before = A.rankFor(totalXP());
   const s = saveSessionFromLog();
-  say('¡Entrenamiento completado! Buen trabajo.');
+  const line = A.pick(A.LINES.finish);
   render();
   if (!s) return;
-  openModal(`<div class="center"><div class="trophy">🏆</div><h2>¡Entreno completado!</h2><p class="muted">${esc(s.routineName)}</p></div>
-    <div class="stats">${stat(fmtMin(s.durationSec), 'tiempo')}${stat(s.kcal, 'kcal')}${stat(s.exercises.length, 'ejercicios')}</div>
+  const after = A.rankFor(totalXP());
+  const up = after.index > before.index;
+  say(up ? `${line} ¡Ascenso! Ahora eres ${after.name}.` : line);
+  openModal(`<div class="center"><div class="fig-stage finish-fig">${A.portrait(avatarId(), 'victory')}</div><small class="kicker">${esc(s.routineName)}</small><h2 class="mission">${esc(line)}</h2>
+    ${up ? `<div class="promo">⬆ ¡ASCENSO! ${after.icon} ${esc(after.name)}</div>` : ''}</div>
+    <div class="stats">${stat(fmtMin(s.durationSec), 'tiempo')}${stat(s.kcal, 'kcal')}${stat('+' + s.xp, 'XP')}</div>
+    <div class="xpbar"><span style="width:${after.pct.toFixed(1)}%"></span></div>
+    <p class="center muted small">${after.icon} ${esc(after.name)}${after.next ? ` · faltan ${num(after.toNext, 0)} XP para ${esc(after.next.name)}` : ''}</p>
     <p class="center muted small">Llevas ${weekStats().count} entreno${weekStats().count === 1 ? '' : 's'} esta semana · ${num(weekStats().kcal, 0)} kcal</p>
     <div class="row"><button class="btn" data-action="weight">⚖️ Registrar peso</button><button class="btn ghost" data-action="close">Cerrar</button></div>`);
 }
@@ -516,15 +540,17 @@ function renderPlayer() {
   const next = P.steps.slice(P.i + 1).find((x) => x.kind === 'ex');
   let body;
   if (s.kind === 'ex') {
-    body = `<div class="p-label">${s.rounds > 1 ? `Vuelta ${s.round}/${s.rounds} · ` : ''}Ejercicio ${exIdx}/${P.exCount}</div>
-      <h2 class="p-name">${esc(s.ex.name)}</h2>
+    body = `<div class="p-label">${s.rounds > 1 ? `Oleada ${s.round}/${s.rounds} · ` : ''}Objetivo ${exIdx}/${P.exCount}</div>
+      <div class="fig-stage player-fig">${A.figure(s.ex.id, { avatar: avatarId() })}</div>
+      <h2 class="p-name">${esc(exName(s.ex))}</h2>${exSub(s.ex) ? `<div class="p-real">${esc(exSub(s.ex))}</div>` : ''}
       ${s.ex.type === 'reps' ? `<div class="p-big">×${s.n}</div><div class="p-sub">${s.ex.perSide ? 'por lado · ' : ''}<span id="p-time"></span></div>` : `<div class="p-big" id="p-time"></div><div class="p-sub">${s.ex.perSide ? 'Cambia de lado al oír el aviso' : 'segundos'}</div>`}
       <details class="p-how"><summary>Cómo se hace</summary><ol>${s.ex.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>${s.ex.tip ? `<p>💡 ${esc(s.ex.tip)}</p>` : ''}</details>`;
   } else {
     const isPrep = s.kind === 'prep';
-    body = `<div class="p-label">${isPrep ? 'Prepárate' : s.endRound ? 'Fin de vuelta · descanso' : 'Descanso'}</div>
+    body = `<div class="p-label">${isPrep ? 'Despliegue en' : s.endRound ? 'Oleada superada · recarga' : 'Recargando escudos'}</div>
       <div class="p-big" id="p-time"></div>
-      ${next ? `<div class="p-next">Siguiente: <b>${esc(next.ex.name)}</b> ${next.ex.type === 'reps' ? '×' + next.n : next.n + ' s'}</div>` : ''}
+      ${!isPrep ? `<p class="p-quote">“${esc(P.restLine || A.LINES.rest[0])}”</p>` : ''}
+      ${next ? `<div class="p-next-card"><span class="mini-fig">${A.figure(next.ex.id, { avatar: avatarId() })}</span><div><small class="muted">Siguiente</small><b>${esc(exName(next.ex))}</b><small>${esc(next.ex.name)} · ${next.ex.type === 'reps' ? '×' + next.n : next.n + ' s'}</small></div></div>` : ''}
       <button class="btn ghost small" data-action="p-plus">+10 s</button>`;
   }
   $('#player').innerHTML = `
@@ -688,6 +714,7 @@ document.addEventListener('click', (ev) => {
   if (!a && el.dataset.tab) return go(el.dataset.tab);
   switch (a) {
     case 'tab': return go(el.dataset.tab);
+    case 'avatar': state.profile.avatar = id; save(); toast(`Clase elegida: ${A.CLASSES[id].name}`); return render();
     case 'close': return closeModal();
     case 'weight': return weightModal();
     case 'save-weight': {

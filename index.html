@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Mi Entreno</title>
   <meta name="description" content="Mi app personal de ejercicios en casa, peso y progreso.">
-  <meta name="theme-color" content="#16a34a">
+  <meta name="theme-color" content="#0a0a0b">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mi Entreno">
   <link rel="manifest" href="manifest.webmanifest">
@@ -22,9 +25,9 @@
   <main id="view"></main>
 
   <nav class="nav">
-    <button data-tab="hoy"><span>🏠</span>Hoy</button>
-    <button data-tab="entrenar"><span>💪</span>Entrenar</button>
-    <button data-tab="ejercicios"><span>📋</span>Ejercicios</button>
+    <button data-tab="hoy"><span>🏠</span>Base</button>
+    <button data-tab="entrenar"><span>⚔️</span>Misiones</button>
+    <button data-tab="ejercicios"><span>🎯</span>Arsenal</button>
     <button data-tab="progreso"><span>📈</span>Progreso</button>
     <button data-tab="ajustes"><span>⚙️</span>Ajustes</button>
   </nav>
@@ -34,6 +37,7 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="exercises.js"></script>
+  <script src="avatar.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

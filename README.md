@@ -14,6 +14,15 @@ No necesita servidor ni base de datos: son archivos estáticos (HTML, CSS y JS).
 
 Las calorías se calculan con el método MET: `kcal = MET × 3,5 × peso ÷ 200 × minutos`.
 
+## Modo combate
+
+- **Tema** negro, naranja y rojo.
+- **Avatar animado** que hace cada ejercicio. Clases: **Spartan** (visor dorado), **Gear** (hombreras y pañuelo rojo), **Slayer** (armadura infernal) y **Ninja** (bufanda roja). Se elige en Ajustes.
+- **Nombres de guerra**: misiones como *Sprint Spartan*, *Abs Spartanas*, *Bloqueo de Armadura Spartan*, *Protocolo Slayer*, *Sigilo Ninja*… y ejercicios como *Burpees del Infierno*, *Cobertura de Gears*, *Ascensor Gravitatorio* o *Pica del Clan Hayabusa*. Debajo siempre aparece el nombre real.
+- **XP y rangos**: cada misión da XP (calorías + bonus). Rangos: Recluta → Pelotón Delta · Novato → Soldado de la COG → Paracaidista ODST → Spartan → Spartan Veterano → Slayer → Maestro Ninja del Dragón → Leyenda.
+
+Los avatares son dibujos propios hechos en SVG (`avatar.js`). Los nombres y rangos son guiños para uso personal; no incluyen arte ni contenido de esos juegos.
+
 ## Paso 1 — Publicar la app gratis con GitHub Pages
 
 Google solo permite iniciar sesión desde una dirección `https://`, así que la app tiene que estar publicada en internet. Con GitHub Pages es gratis.
@@ -58,7 +67,7 @@ Abre la dirección de la app en **Chrome** (Android) o **Safari** (iPhone):
 
 ## Añadir o cambiar ejercicios
 
-Edita `exercises.js`. Cada ejercicio es un bloque como este:
+Edita `exercises.js`. El nombre épico va en la lista `ALIAS` del final del archivo y el nombre de cada misión en `MISSIONS`. La animación del avatar se asigna en `ANIM`, dentro de `avatar.js`. Cada ejercicio es un bloque como este:
 
 ```js
 { id: 'squat', name: 'Sentadilla', groups: ['Piernas', 'Glúteos'], level: 1, met: 5.0, type: 'reps', n: 15,
