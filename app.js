@@ -681,7 +681,7 @@ const Drive = {
     this.pushTimer = setTimeout(() => this.syncNow(false), 2000);
   },
   async connect() {
-    const id = ($('#client-id')?.value || '').trim();
+    const id = ($('#client-id')?.value || '').replace(/\s+/g, '');
     if (!/\.apps\.googleusercontent\.com$/.test(id)) { toast('Pega el ID de cliente (termina en .apps.googleusercontent.com)'); return; }
     if (!location.protocol.startsWith('http')) { toast('Abre la app desde su dirección web (https://…) para conectar Drive'); return; }
     sync.clientId = id; saveSync();
