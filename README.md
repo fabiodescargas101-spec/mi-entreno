@@ -23,6 +23,15 @@ Las calorías se calculan con el método MET: `kcal = MET × 3,5 × peso ÷ 200 
 
 Los avatares son dibujos propios hechos en SVG (`avatar.js`). Los nombres y rangos son guiños para uso personal; no incluyen arte ni contenido de esos juegos.
 
+## Operaciones largas (40+ min)
+
+Siete misiones de cuerpo completo, funcionales y sin equipo, de unos 60 minutos cada una: entre 35 y 45 minutos de ejercicio activo, con calentamiento y vuelta a la calma incluidos.
+
+- **Heroico:** Asalto a la Ciudadela · Día de la Emergencia · Camino del Ninja
+- **Legendario:** Protocolo Slayer: Pesadilla · Leyenda Spartan · Modo Horda · Prueba del Maestro Dragón
+
+Usan 12 ejercicios funcionales nuevos con avatar animado: Despliegue Táctico (squat thrust), Salto Gravitatorio (tuck jump), Gateo del Berserker (bear crawl), Flanqueo Lateral, Casco de Canoa (hollow hold), Salto Cruzado Hayabusa, Ascenso Mjolnir, Supernova (salto estrella), Flexión Reptante Ninja, Sentadilla Pistola del Slayer, Plancha Propulsada y Burpee del Apocalipsis.
+
 ## Biblioteca libre
 
 En **Arsenal → Biblioteca libre** hay más de 800 ejercicios gratuitos con fotos, de [Free Exercise DB](https://github.com/yuhonas/free-exercise-db), que es de dominio público (licencia Unlicense). Puedes filtrar por equipo (sin equipo, mancuernas, bandas, kettlebell…) y por músculo, ver las fotos animadas y añadir los que quieras a tu arsenal para usarlos en tus misiones.

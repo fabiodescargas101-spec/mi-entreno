@@ -285,3 +285,4 @@ h3 { text-transform: uppercase; letter-spacing: .06em; font-size: 1rem; color: v
 .owned { color: #4ade80; font-weight: 600; white-space: nowrap; }
 .more-card { text-align: center; border-style: dashed; border-color: var(--accent); color: var(--text); }
 a { color: var(--accent); }
+.phase-h { margin: 14px 0 0; color: var(--accent); }

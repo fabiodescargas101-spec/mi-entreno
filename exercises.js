@@ -163,6 +163,44 @@ window.EXERCISES = [
     steps: ['Boca arriba con las rodillas dobladas en el aire.', 'Lleva las rodillas al pecho despegando la cadera del suelo.', 'Baja despacio.'],
     tip: 'Usa el abdomen, no el impulso.' },
 
+  // ---------- FUNCIONALES (cuerpo completo) ----------
+  { id: 'squat-thrust', name: 'Squat thrust', groups: ['Cardio', 'Piernas', 'Abdomen'], level: 2, met: 8.0, type: 'reps', n: 12, secPerRep: 3,
+    steps: ['De pie, agáchate y apoya las manos en el suelo delante de los pies.', 'Lanza los pies hacia atrás de un salto hasta quedar en plancha.', 'Recoge los pies de un salto hacia las manos y ponte de pie.'],
+    tip: 'Es un burpee sin flexión ni salto: ideal para mantener el ritmo alto.' },
+  { id: 'tuck-jump', name: 'Salto con rodillas al pecho', groups: ['Cardio', 'Piernas', 'Abdomen'], level: 3, met: 8.0, type: 'reps', n: 10, secPerRep: 2.5,
+    steps: ['Pies a la anchura de la cadera, rodillas un poco flexionadas.', 'Salta con fuerza llevando las rodillas hacia el pecho.', 'Aterriza suave con las rodillas flexionadas y enlaza el siguiente salto.'],
+    tip: 'Usa los brazos para impulsarte. Si duelen las rodillas, cambia por sentadillas con salto.' },
+  { id: 'bear-crawl', name: 'Gateo de oso', groups: ['Hombros', 'Abdomen', 'Piernas'], level: 2, met: 6.0, type: 'time', n: 40,
+    steps: ['A cuatro patas, despega las rodillas del suelo unos centímetros.', 'Avanza moviendo a la vez mano y pie contrarios.', 'Ve hacia delante unos pasos y vuelve hacia atrás, sin subir la cadera.'],
+    tip: 'Espalda plana y rodillas siempre bajas. Si no tienes espacio, hazlo en el sitio.' },
+  { id: 'lateral-lunge', name: 'Zancada lateral', groups: ['Piernas', 'Glúteos'], level: 2, met: 4.5, type: 'reps', n: 16,
+    steps: ['De pie, da un paso amplio hacia un lado.', 'Flexiona esa rodilla llevando la cadera atrás; la otra pierna queda estirada.', 'Empuja para volver al centro y alterna el lado.'],
+    tip: 'El pie de la pierna doblada apoyado entero, sin levantar el talón.' },
+  { id: 'hollow-hold', name: 'Hollow hold (canoa)', groups: ['Abdomen'], level: 2, met: 4.0, type: 'time', n: 30,
+    steps: ['Boca arriba, pega la zona lumbar al suelo.', 'Despega hombros y piernas estiradas del suelo; brazos estirados atrás.', 'Aguanta la forma de canoa respirando.'],
+    tip: 'Si la lumbar se despega, dobla las rodillas o sube un poco más las piernas.' },
+  { id: 'split-jump', name: 'Zancada con salto', groups: ['Piernas', 'Glúteos', 'Cardio'], level: 3, met: 8.0, type: 'reps', n: 12, secPerRep: 2.5,
+    steps: ['Ponte en posición de zancada.', 'Salta y cambia de pierna en el aire.', 'Aterriza en zancada con la otra pierna delante y repite.'],
+    tip: 'Aterriza suave y controla que la rodilla delantera no se vaya hacia dentro.' },
+  { id: 'plank-to-pushup', name: 'Plancha a brazos estirados', groups: ['Hombros', 'Brazos', 'Abdomen'], level: 2, met: 5.0, type: 'reps', n: 10, secPerRep: 4,
+    steps: ['Empieza en plancha sobre los antebrazos.', 'Sube apoyando una mano y luego la otra hasta quedar con los brazos estirados.', 'Baja de nuevo a los antebrazos, un brazo y luego el otro. Alterna el brazo que empieza.'],
+    tip: 'Pies algo separados para que la cadera no se balancee.' },
+  { id: 'star-jump', name: 'Salto estrella', groups: ['Cardio', 'Piernas', 'Hombros'], level: 2, met: 8.0, type: 'reps', n: 12, secPerRep: 2.5,
+    steps: ['Agáchate en media sentadilla con los brazos cerca del cuerpo.', 'Salta abriendo brazos y piernas en forma de estrella.', 'Junta todo antes de aterrizar y cae suave en media sentadilla.'],
+    tip: 'Explosivo arriba, suave abajo.' },
+  { id: 'spiderman-pushup', name: 'Flexión araña', groups: ['Pecho', 'Abdomen', 'Brazos'], level: 3, met: 5.5, type: 'reps', n: 10, secPerRep: 3.5,
+    steps: ['Posición de flexión.', 'Al bajar, lleva una rodilla hacia el codo del mismo lado.', 'Sube y vuelve la pierna atrás. Alterna el lado en cada repetición.'],
+    tip: 'Si cuesta, haz la flexión normal y luego lleva la rodilla al codo.' },
+  { id: 'pistol-squat', name: 'Sentadilla pistola asistida', groups: ['Piernas', 'Glúteos'], level: 3, met: 5.5, type: 'reps', n: 6, perSide: true, secPerRep: 4,
+    steps: ['De pie sobre una pierna, la otra estirada hacia delante.', 'Baja despacio todo lo que puedas manteniendo el equilibrio (puedes apoyar una mano en la pared).', 'Sube empujando con el talón. Completa las repeticiones y cambia de pierna.'],
+    tip: 'Empieza bajando solo hasta una silla o la mitad del recorrido.' },
+  { id: 'plank-jack', name: 'Plancha con saltos', groups: ['Cardio', 'Abdomen', 'Hombros'], level: 2, met: 8.0, type: 'time', n: 30,
+    steps: ['Plancha con los brazos estirados y los pies juntos.', 'Salta abriendo los pies a los lados, como un salto de tijera.', 'Salta para juntarlos sin mover la cadera.'],
+    tip: 'Abdomen apretado: las caderas no deben subir ni bajar.' },
+  { id: 'burpee-tuck', name: 'Burpee con salto de rodillas', groups: ['Cardio', 'Pecho', 'Piernas'], level: 3, met: 10.0, type: 'reps', n: 8, secPerRep: 5,
+    steps: ['Haz un burpee completo con flexión.', 'Al levantarte, en lugar del salto normal, salta llevando las rodillas al pecho.', 'Aterriza suave y enlaza el siguiente.'],
+    tip: 'El ejercicio más duro del arsenal. Calidad antes que velocidad.' },
+
   // ---------- MOVILIDAD Y ESTIRAMIENTOS ----------
   { id: 'cat-cow', name: 'Gato-vaca', groups: ['Movilidad', 'Espalda'], level: 1, met: 2.3, type: 'time', n: 40,
     steps: ['A cuatro patas.', 'Al inspirar, hunde la espalda y mira al frente.', 'Al espirar, redondea la espalda y mira hacia el ombligo.'],
@@ -193,7 +231,12 @@ window.EXERCISES = [
     tip: 'Muy útil después de piernas o si tienes la cadera cargada.' },
 ];
 
-/* Rutinas predefinidas. items: { ex: id del ejercicio, n: repeticiones o segundos } */
+/* Calentamiento y vuelta a la calma para las misiones largas */
+const WARMUP = [{ ex: 'jumping-jacks', n: 45 }, { ex: 'arm-circles', n: 30 }, { ex: 'cat-cow', n: 30 }, { ex: 'squat', n: 10 }, { ex: 'inchworm', n: 5 }, { ex: 'high-knees', n: 30 }];
+const COOLDOWN = [{ ex: 'child-pose', n: 40 }, { ex: 'cobra', n: 30 }, { ex: 'hamstring-stretch', n: 40 }, { ex: 'hip-flexor-stretch', n: 30 }, { ex: 'quad-stretch', n: 30 }, { ex: 'chest-stretch', n: 30 }];
+
+/* Rutinas predefinidas. items: { ex: id del ejercicio, n: repeticiones o segundos }
+ * warmup / cooldown (opcionales): se hacen una vez, antes y después de las oleadas. */
 window.ROUTINES = [
   { id: 'r-principiante', name: 'Cuerpo completo · Principiante', level: 1, rest: 30, rounds: 2,
     desc: 'Para empezar o volver a entrenar. Todo el cuerpo, sin saltos difíciles.',
@@ -225,6 +268,29 @@ window.ROUTINES = [
   { id: 'r-estira', name: 'Estiramientos y movilidad', level: 1, rest: 5, rounds: 1,
     desc: 'Para después de entrenar o los días de descanso.',
     items: [{ ex: 'cat-cow', n: 40 }, { ex: 'child-pose', n: 40 }, { ex: 'cobra', n: 30 }, { ex: 'thoracic-rotation', n: 8 }, { ex: 'hip-flexor-stretch', n: 30 }, { ex: 'hamstring-stretch', n: 40 }, { ex: 'quad-stretch', n: 30 }, { ex: 'figure-four', n: 30 }, { ex: 'chest-stretch', n: 30 }] },
+
+  // ===== OPERACIONES LARGAS (40+ min, cuerpo completo, sin equipo) =====
+  { id: 'r-ciudadela', name: 'Asalto a la Ciudadela', level: 2, rest: 30, rounds: 4, warmup: WARMUP, cooldown: COOLDOWN,
+    desc: 'Operación heroica de cuerpo completo: empuje, piernas, core y cardio en cuatro oleadas.',
+    items: [{ ex: 'jumping-jacks', n: 45 }, { ex: 'squat', n: 20 }, { ex: 'pushup', n: 12 }, { ex: 'reverse-lunge', n: 16 }, { ex: 'mountain-climbers', n: 40 }, { ex: 'glute-bridge', n: 20 }, { ex: 'plank-shoulder-tap', n: 20 }, { ex: 'skater-jumps', n: 40 }, { ex: 'superman', n: 15 }, { ex: 'plank', n: 45 }] },
+  { id: 'r-emergencia', name: 'Día de la Emergencia', level: 2, rest: 30, rounds: 4, warmup: WARMUP, cooldown: COOLDOWN,
+    desc: 'La invasión ha empezado. Funcional puro: gatea, salta, empuja y aguanta la cobertura.',
+    items: [{ ex: 'high-knees', n: 40 }, { ex: 'squat-thrust', n: 12 }, { ex: 'wide-pushup', n: 12 }, { ex: 'lateral-lunge', n: 16 }, { ex: 'bear-crawl', n: 40 }, { ex: 'wall-sit', n: 45 }, { ex: 'plank-to-pushup', n: 10 }, { ex: 'bicycle-crunch', n: 24 }, { ex: 'swimmer', n: 40 }, { ex: 'star-jump', n: 12 }] },
+  { id: 'r-camino-ninja', name: 'Camino del Ninja', level: 2, rest: 25, rounds: 4, warmup: WARMUP, cooldown: COOLDOWN,
+    desc: 'Agilidad, equilibrio y core de acero. Rápido y silencioso, como un guerrero del clan.',
+    items: [{ ex: 'shadow-boxing', n: 60 }, { ex: 'skater-jumps', n: 45 }, { ex: 'curtsy-lunge', n: 16 }, { ex: 'inchworm', n: 8 }, { ex: 'side-plank', n: 30 }, { ex: 'lateral-lunge', n: 16 }, { ex: 'russian-twist', n: 24 }, { ex: 'bird-dog', n: 16 }, { ex: 'jump-rope', n: 60 }, { ex: 'hollow-hold', n: 30 }] },
+  { id: 'r-pesadilla', name: 'Protocolo Slayer: Pesadilla', level: 3, rest: 20, rounds: 5, warmup: WARMUP, cooldown: COOLDOWN,
+    desc: 'Cinco oleadas de infierno puro. Explosivos, flexiones y core sin piedad. Rasga y desgarra.',
+    items: [{ ex: 'burpees', n: 15 }, { ex: 'tuck-jump', n: 12 }, { ex: 'pushup', n: 15 }, { ex: 'split-jump', n: 16 }, { ex: 'mountain-climbers', n: 45 }, { ex: 'spiderman-pushup', n: 10 }, { ex: 'star-jump', n: 12 }, { ex: 'v-up', n: 15 }, { ex: 'plank', n: 60 }] },
+  { id: 'r-leyenda-spartan', name: 'Leyenda Spartan', level: 3, rest: 20, rounds: 5, warmup: WARMUP, cooldown: COOLDOWN,
+    desc: 'La dificultad máxima del supersoldado: fuerza a una pierna, pica, diamante y resistencia total.',
+    items: [{ ex: 'squat-thrust', n: 15 }, { ex: 'pistol-squat', n: 6 }, { ex: 'diamond-pushup', n: 12 }, { ex: 'jump-squat', n: 20 }, { ex: 'bear-crawl', n: 45 }, { ex: 'pike-pushup', n: 10 }, { ex: 'skater-jumps', n: 45 }, { ex: 'hollow-hold', n: 40 }, { ex: 'plank-to-pushup', n: 12 }, { ex: 'high-knees', n: 45 }] },
+  { id: 'r-horda', name: 'Modo Horda', level: 3, rest: 15, rounds: 6, warmup: WARMUP, cooldown: COOLDOWN,
+    desc: 'Seis oleadas, descansos mínimos. Aguanta la posición hasta que caiga la última oleada.',
+    items: [{ ex: 'burpees', n: 10 }, { ex: 'jump-squat', n: 15 }, { ex: 'pushup', n: 12 }, { ex: 'mountain-climbers', n: 40 }, { ex: 'lunge', n: 20 }, { ex: 'plank-jack', n: 30 }, { ex: 'squat-thrust', n: 12 }, { ex: 'plank-shoulder-tap', n: 20 }, { ex: 'flutter-kicks', n: 40 }] },
+  { id: 'r-maestro-dragon', name: 'Prueba del Maestro Dragón', level: 3, rest: 20, rounds: 4, warmup: WARMUP, cooldown: COOLDOWN,
+    desc: 'La prueba final del linaje. Equilibrio, potencia y control absoluto del cuerpo.',
+    items: [{ ex: 'jump-rope', n: 60 }, { ex: 'split-jump', n: 16 }, { ex: 'pistol-squat', n: 6 }, { ex: 'spiderman-pushup', n: 10 }, { ex: 'skater-jumps', n: 45 }, { ex: 'burpee-tuck', n: 8 }, { ex: 'hollow-hold', n: 45 }, { ex: 'v-up', n: 15 }, { ex: 'side-plank', n: 40 }, { ex: 'shadow-boxing', n: 60 }] },
 ];
 
 /* ---------- Nombres de guerra ----------
@@ -249,6 +315,10 @@ const ALIAS = {
   'cobra': 'Cobra Hayabusa', 'hip-flexor-stretch': 'Rodilla en Tierra', 'hamstring-stretch': 'Tensado del Arco',
   'quad-stretch': 'Flamenco del Centinela', 'chest-stretch': 'Apertura de Coraza', 'thoracic-rotation': 'Giro de Radar',
   'figure-four': 'Figura 4 del Francotirador',
+  'squat-thrust': 'Despliegue Táctico', 'tuck-jump': 'Salto Gravitatorio', 'bear-crawl': 'Gateo del Berserker',
+  'lateral-lunge': 'Flanqueo Lateral', 'hollow-hold': 'Casco de Canoa', 'split-jump': 'Salto Cruzado Hayabusa',
+  'plank-to-pushup': 'Ascenso Mjolnir', 'star-jump': 'Supernova', 'spiderman-pushup': 'Flexión Reptante Ninja',
+  'pistol-squat': 'Sentadilla Pistola del Slayer', 'plank-jack': 'Plancha Propulsada', 'burpee-tuck': 'Burpee del Apocalipsis',
 };
 window.EXERCISES.forEach((e) => { if (ALIAS[e.id]) e.alias = ALIAS[e.id]; });
 

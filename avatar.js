@@ -108,6 +108,20 @@
   S.circB = { ...S.circA, e1: [72, 29], w1: [84, 32], e2: [48, 29], w2: [36, 32] };
   S.curtsyDown = mk({ h: [58, 36], n: [58, 46], p: [57, 70], e1: [60, 58], w1: [62, 69], k1: [72, 72], f1: [72, 91], k2: [54, 89], f2: [40, 89] });
 
+  S.tuckAir = mk({ h: [60, 2], n: [60, 12], p: [60, 38], e1: [70, 20], w1: [80, 22], e2: [68, 21], w2: [78, 23], k1: [74, 30], f1: [66, 46], k2: [72, 31], f2: [64, 47] });
+  S.bear = mk({ h: [85, 62], n: [76, 66], p: [48, 62], e1: [77, 78], w1: [78, 91], k1: [58, 80], f1: [42, 91] });
+  S.bear2 = { ...S.bear, e1: [82, 78], w1: [86, 91], k1: [64, 80], f1: [48, 91], e2: [73, 78], w2: [72, 91], k2: [52, 80], f2: [36, 91] };
+  S.latLunge = mk({ h: [56, 32], n: [55, 42], p: [52, 66], e1: [60, 52], w1: [56, 50], e2: [50, 52], w2: [54, 50], k1: [70, 78], f1: [86, 91], k2: [40, 72], f2: [40, 91] });
+  S.hollow = mk({ h: [17, 77], n: [25, 81], p: [50, 89], e1: [13, 75], w1: [1, 71], k1: [68, 84], f1: [86, 79] });
+  S.hollow2 = { ...S.hollow, h: [17, 78], n: [25, 82], k1: [68, 85], f1: [86, 81], w1: [1, 73] };
+  S.splitAir = mk({ h: [58, 6], n: [58, 16], p: [57, 42], e1: [64, 26], w1: [68, 37], e2: [52, 26], w2: [48, 36], k1: [72, 50], f1: [72, 68], k2: [48, 58], f2: [34, 66] });
+  S.starAir = mk({ h: [60, 4], n: [60, 14], p: [60, 41], e1: [72, 8], w1: [84, 2], e2: [48, 8], w2: [36, 2], k1: [68, 58], f1: [76, 75], k2: [52, 58], f2: [44, 75] });
+  S.spiderDown = { ...S.pushDown, k1: [72, 82], f1: [60, 89] };
+  S.pistolUp = mk({ h: [60, 17], n: [60, 27], p: [60, 54], e1: [68, 34], w1: [80, 34], e2: [66, 35], w2: [78, 35], k1: [77, 58], f1: [95, 61], k2: [60, 73], f2: [59, 91] });
+  S.pistolDown = mk({ h: [58, 40], n: [57, 50], p: [44, 70], e1: [68, 48], w1: [80, 48], e2: [66, 49], w2: [78, 49], k1: [62, 68], f1: [80, 64], k2: [60, 72], f2: [57, 91] });
+  S.plankJackA = { ...S.pushUp };
+  S.plankJackB = { ...S.pushUp, f1: [30, 86], f2: [24, 90], k1: [46, 82], k2: [42, 84] };
+
   // Animación de cada ejercicio: secuencia de poses (+ accesorio opcional)
   const ANIM = {
     'jumping-jacks': ['jackClosed', 'jackOpen'], 'high-knees': ['kneeA', 'kneeB'], 'butt-kicks': ['kickA', 'kickB'],
@@ -128,6 +142,11 @@
     'cat-cow': ['cow', 'cat'], 'child-pose': ['child', 'child2'], 'cobra': ['cobraDown', 'cobraUp'], 'hip-flexor-stretch': ['hipFlex', 'hipFlex2'],
     'hamstring-stretch': ['hamA', 'hamB'], 'quad-stretch': ['quadSt', 'quadSt2'], 'chest-stretch': ['chestSt', 'chestSt2'],
     'thoracic-rotation': ['thorDown', 'thorUp'], 'figure-four': ['fig4A', 'fig4B'],
+    'squat-thrust': ['stand', 'squatHands', 'pushUp', 'squatHands'], 'tuck-jump': ['squat', 'tuckAir'], 'bear-crawl': ['bear', 'bear2'],
+    'lateral-lunge': ['sumoUp', 'latLunge'], 'hollow-hold': ['hollow', 'hollow2'], 'split-jump': ['lungeDown', 'splitAir'],
+    'plank-to-pushup': ['plank', 'pushUp'], 'star-jump': ['sumoDown', 'starAir'], 'spiderman-pushup': ['pushUp', 'spiderDown'],
+    'pistol-squat': ['pistolUp', 'pistolDown'], 'plank-jack': ['plankJackA', 'plankJackB'],
+    'burpee-tuck': ['stand', 'squatHands', 'pushUp', 'pushDown', 'squatHands', 'tuckAir'],
   };
   const PROPS = ['wall', 'step', 'chair'];
 

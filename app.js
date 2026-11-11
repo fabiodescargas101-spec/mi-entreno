@@ -10,7 +10,7 @@ const parseDay = (s) => { const [y, m, d] = s.split('-').map(Number); return new
 const DAY = 86400000;
 const num = (n, d = 1) => Number(n).toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: d });
 const fmtDay = (s, opts = { day: 'numeric', month: 'short' }) => parseDay(s).toLocaleDateString('es-ES', opts);
-const fmtMin = (sec) => { const m = Math.round(sec / 60); return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${m % 60} min`; };
+const fmtMin = (sec) => { const m = Math.round(sec / 60); return m < 60 ? `${m} min` : `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, "0")}m`; };
 const clock = (sec) => { sec = Math.max(0, Math.ceil(sec)); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`; };
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const toNum = (v) => { const n = parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : null; };
@@ -67,13 +67,12 @@ const exActiveSec = (ex, n) => (ex.type === 'time' ? n : n * (ex.secPerRep || 3)
 const allRoutines = () => [...state.customRoutines, ...window.ROUTINES];
 const findRoutine = (id) => allRoutines().find((r) => r.id === id);
 
-function routineEstimate(r) {
-  let active = 0, kcal = 0, total = 10;
-  const rounds = r.rounds || 1;
-  r.items.forEach((it) => { const ex = EX[it.ex]; if (!ex) return; const s = exActiveSec(ex, it.n); active += s; kcal += kcalFor(ex.met, s); });
-  active *= rounds; kcal *= rounds;
-  const rests = Math.max(0, r.items.length * rounds - 1) * (r.rest || 30);
-  total += active + rests;
+function routineEstimate(r) { // usa los mismos pasos que el reproductor
+  let active = 0, kcal = 0, total = 0, rests = 0;
+  buildSteps(r).forEach((s) => {
+    if (s.kind === 'ex') { const sec = s.sec ?? exActiveSec(s.ex, s.n); active += sec; kcal += kcalFor(s.ex.met, sec); total += sec; }
+    else { total += s.sec; rests += s.sec; }
+  });
   return { active, kcal: kcal + kcalFor(1.5, rests), total };
 }
 
@@ -237,6 +236,7 @@ function renderEntrenar() {
     <h2>Campaña</h2>
     ${window.ROUTINES.map((r) => routineCard(r, false)).join('')}`;
 }
+const exListHtml = (items) => `<ol class="ex-list">${items.map((it) => { const ex = EX[it.ex]; if (!ex) return ''; return `<li data-action="ex" data-id="${ex.id}"><span class="mini-fig">${exVisual(ex, { still: true })}</span><span>${esc(exName(ex))}${exSub(ex) ? `<small class="muted sub">${esc(exSub(ex))}</small>` : ''}</span><b>${ex.type === 'reps' ? '×' + it.n : it.n + ' s'}${ex.perSide ? ' <small>por lado</small>' : ''}</b></li>`; }).join('')}</ol>`;
 function showRoutine(id) {
   const r = findRoutine(id); if (!r) return;
   const e = routineEstimate(r);
@@ -244,8 +244,10 @@ function showRoutine(id) {
   openModal(`
     <h2>${esc(r.name)}</h2>
     ${r.desc ? `<p class="muted">${esc(r.desc)}</p>` : ''}
-    <div class="stats">${stat(fmtMin(e.total), 'duración')}${stat('~' + num(e.kcal, 0), 'kcal')}${stat(r.rounds || 1, 'vueltas')}${stat(r.rest + ' s', 'descanso')}</div>
-    <ol class="ex-list">${r.items.map((it) => { const ex = EX[it.ex]; if (!ex) return ''; return `<li data-action="ex" data-id="${ex.id}"><span class="mini-fig">${exVisual(ex, { still: true })}</span><span>${esc(exName(ex))}${exSub(ex) ? `<small class="muted sub">${esc(exSub(ex))}</small>` : ''}</span><b>${ex.type === 'reps' ? '×' + it.n : it.n + ' s'}${ex.perSide ? ' <small>por lado</small>' : ''}</b></li>`; }).join('')}</ol>
+    <div class="stats">${stat(fmtMin(e.total), 'duración')}${stat('~' + num(e.kcal, 0), 'kcal')}${stat(r.rounds || 1, 'oleadas')}${stat(r.rest + ' s', 'descanso')}</div>
+    ${r.warmup ? `<h3 class="phase-h">🔥 Calentamiento</h3>${exListHtml(r.warmup)}` : ''}
+    ${r.warmup ? `<h3 class="phase-h">⚔️ Oleadas ×${r.rounds || 1}</h3>` : ''}${exListHtml(r.items)}
+    ${r.cooldown ? `<h3 class="phase-h">🧘 Vuelta a la calma</h3>${exListHtml(r.cooldown)}` : ''}
     <button class="btn block big-btn" data-action="start" data-id="${esc(r.id)}">▶ Iniciar misión</button>
     <div class="row">
       ${custom ? `<button class="btn ghost" data-action="edit-routine" data-id="${esc(r.id)}">Editar</button><button class="btn ghost danger" data-action="del-routine" data-id="${esc(r.id)}">Borrar</button>`
@@ -493,6 +495,12 @@ function say(text) {
 function buildSteps(r) {
   const steps = [{ kind: 'prep', sec: 10 }];
   const rounds = r.rounds || 1;
+  const phase = (items, name, rest) => items.forEach((it, i) => {
+    const ex = EX[it.ex]; if (!ex) return;
+    steps.push({ kind: 'ex', ex, n: it.n, sec: ex.type === 'time' ? it.n * (ex.perSide ? 2 : 1) : null, phase: name });
+    if (i < items.length - 1 && rest > 0) steps.push({ kind: 'rest', sec: rest });
+  });
+  if (r.warmup && r.warmup.length) { phase(r.warmup, 'warm', 10); steps.push({ kind: 'rest', sec: 30, label: 'Calentamiento listo · comienza la operación' }); }
   for (let k = 0; k < rounds; k++) {
     r.items.forEach((it, i) => {
       const ex = EX[it.ex]; if (!ex) return;
@@ -501,6 +509,7 @@ function buildSteps(r) {
       if (!isLast && r.rest > 0) steps.push({ kind: 'rest', sec: i === r.items.length - 1 ? Math.max(45, r.rest * 2) : r.rest, endRound: i === r.items.length - 1 });
     });
   }
+  if (r.cooldown && r.cooldown.length) { steps.push({ kind: 'rest', sec: 45, label: '¡Operación completada! · vuelta a la calma' }); phase(r.cooldown, 'cool', 5); }
   return steps;
 }
 async function startWorkout(id) {
@@ -597,14 +606,14 @@ function renderPlayer() {
   const next = P.steps.slice(P.i + 1).find((x) => x.kind === 'ex');
   let body;
   if (s.kind === 'ex') {
-    body = `<div class="p-label">${s.rounds > 1 ? `Oleada ${s.round}/${s.rounds} · ` : ''}Objetivo ${exIdx}/${P.exCount}</div>
+    body = `<div class="p-label">${s.phase === 'warm' ? 'Calentamiento · ' : s.phase === 'cool' ? 'Vuelta a la calma · ' : ''}${s.rounds > 1 ? `Oleada ${s.round}/${s.rounds} · ` : ''}Objetivo ${exIdx}/${P.exCount}</div>
       <div class="fig-stage player-fig">${exVisual(s.ex)}</div>
       <h2 class="p-name">${esc(exName(s.ex))}</h2>${exSub(s.ex) ? `<div class="p-real">${esc(exSub(s.ex))}</div>` : ''}
       ${s.ex.type === 'reps' ? `<div class="p-big">×${s.n}</div><div class="p-sub">${s.ex.perSide ? 'por lado · ' : ''}<span id="p-time"></span></div>` : `<div class="p-big" id="p-time"></div><div class="p-sub">${s.ex.perSide ? 'Cambia de lado al oír el aviso' : 'segundos'}</div>`}
       <details class="p-how"><summary>Cómo se hace${s.ex.stepsLang === 'en' ? ' (en inglés)' : ''}</summary><ol>${s.ex.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>${s.ex.tip ? `<p>💡 ${esc(s.ex.tip)}</p>` : ''}</details>`;
   } else {
     const isPrep = s.kind === 'prep';
-    body = `<div class="p-label">${isPrep ? 'Despliegue en' : s.endRound ? 'Oleada superada · recarga' : 'Recargando escudos'}</div>
+    body = `<div class="p-label">${isPrep ? 'Despliegue en' : s.label ? esc(s.label) : s.endRound ? 'Oleada superada · recarga' : 'Recargando escudos'}</div>
       <div class="p-big" id="p-time"></div>
       ${!isPrep ? `<p class="p-quote">“${esc(P.restLine || A.LINES.rest[0])}”</p>` : ''}
       ${next ? `<div class="p-next-card"><span class="mini-fig">${exVisual(next.ex)}</span><div><small class="muted">Siguiente</small><b>${esc(exName(next.ex))}</b><small>${exSub(next.ex) ? esc(exSub(next.ex)) + ' · ' : ''}${next.ex.type === 'reps' ? '×' + next.n : next.n + ' s'}</small></div></div>` : ''}
