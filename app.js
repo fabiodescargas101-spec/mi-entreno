@@ -16,10 +16,21 @@ const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const toNum = (v) => { const n = parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : null; };
 
 const EX = Object.fromEntries(window.EXERCISES.map((e) => [e.id, e]));
+const L = window.LIBRARY;
+const allExercises = () => [...window.EXERCISES, ...state.libExercises];
+function registerLib() { state.libExercises.forEach((e) => { EX[e.id] = e; }); }
 const LEVELS = ['', 'Normal', 'Heroico', 'Legendario'];
 const A = window.AVATAR;
 const exName = (ex) => ex.alias || ex.name;
-const exSub = (ex) => (ex.alias && ex.alias !== ex.name ? ex.name : '');
+const exSub = (ex) => (ex.alias && ex.alias !== ex.name ? ex.name : ex.originalName && ex.originalName !== ex.name ? ex.originalName : '');
+function exVisual(ex, opts = {}) { // foto (biblioteca) o avatar animado
+  if (ex.images && ex.images.length) {
+    const [a, b] = ex.images;
+    const img = (src) => `<img src="${esc(src)}" alt="" loading="lazy" referrerpolicy="no-referrer">`;
+    return `<span class="photo ${!opts.still && b ? 'anim' : ''}">${img(a)}${!opts.still && b ? img(b) : ''}</span>`;
+  }
+  return A.figure(ex.id, { avatar: avatarId(), still: opts.still });
+}
 const avatarId = () => state.profile.avatar || 'spartan';
 const totalXP = () => state.sessions.reduce((a, s) => a + (s.xp ?? Math.round(s.kcal + 25)), 0);
 
@@ -32,19 +43,20 @@ const defaults = () => ({
   weights: [],         // { date, kg, waist? }
   sessions: [],        // { id, date (ISO), routineId, routineName, durationSec, activeSec, kcal, exercises: [{ id, reps?, sec }] }
   customRoutines: [],  // misma forma que ROUTINES
+  libExercises: [],    // ejercicios añadidos desde la Biblioteca libre
   settings: { sound: true, voice: true },
 });
 const normalize = (s) => {
   const d = defaults();
   return { ...d, ...s, profile: { ...d.profile, ...(s.profile || {}) }, settings: { ...d.settings, ...(s.settings || {}) },
-    weights: s.weights || [], sessions: s.sessions || [], customRoutines: s.customRoutines || [] };
+    weights: s.weights || [], sessions: s.sessions || [], customRoutines: s.customRoutines || [], libExercises: s.libExercises || [] };
 };
 function loadState() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.version) return normalize(s); } catch (e) {} return defaults(); }
 function loadSync() { try { return JSON.parse(localStorage.getItem(SYNC_KEY)) || {}; } catch (e) { return {}; } }
 let state = loadState();
 let sync = loadSync(); // { clientId, connected, fileId, lastSyncedAt, lastSyncTime, token, tokenExp } — solo de este dispositivo
 const saveSync = () => { try { localStorage.setItem(SYNC_KEY, JSON.stringify(sync)); } catch (e) {} };
-function persist() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { toast('No se pudo guardar en el dispositivo'); } }
+function persist() { registerLib(); try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { toast('No se pudo guardar en el dispositivo'); } }
 function save() { state.updatedAt = Date.now(); persist(); Drive.schedulePush(); }
 
 // ============ Cálculos ============
@@ -233,7 +245,7 @@ function showRoutine(id) {
     <h2>${esc(r.name)}</h2>
     ${r.desc ? `<p class="muted">${esc(r.desc)}</p>` : ''}
     <div class="stats">${stat(fmtMin(e.total), 'duración')}${stat('~' + num(e.kcal, 0), 'kcal')}${stat(r.rounds || 1, 'vueltas')}${stat(r.rest + ' s', 'descanso')}</div>
-    <ol class="ex-list">${r.items.map((it) => { const ex = EX[it.ex]; if (!ex) return ''; return `<li data-action="ex" data-id="${ex.id}"><span class="mini-fig">${A.figure(ex.id, { avatar: avatarId(), still: true })}</span><span>${esc(exName(ex))}${exSub(ex) ? `<small class="muted sub">${esc(exSub(ex))}</small>` : ''}</span><b>${ex.type === 'reps' ? '×' + it.n : it.n + ' s'}${ex.perSide ? ' <small>por lado</small>' : ''}</b></li>`; }).join('')}</ol>
+    <ol class="ex-list">${r.items.map((it) => { const ex = EX[it.ex]; if (!ex) return ''; return `<li data-action="ex" data-id="${ex.id}"><span class="mini-fig">${exVisual(ex, { still: true })}</span><span>${esc(exName(ex))}${exSub(ex) ? `<small class="muted sub">${esc(exSub(ex))}</small>` : ''}</span><b>${ex.type === 'reps' ? '×' + it.n : it.n + ' s'}${ex.perSide ? ' <small>por lado</small>' : ''}</b></li>`; }).join('')}</ol>
     <button class="btn block big-btn" data-action="start" data-id="${esc(r.id)}">▶ Iniciar misión</button>
     <div class="row">
       ${custom ? `<button class="btn ghost" data-action="edit-routine" data-id="${esc(r.id)}">Editar</button><button class="btn ghost danger" data-action="del-routine" data-id="${esc(r.id)}">Borrar</button>`
@@ -255,8 +267,8 @@ function renderDraft() {
     const q = pickQuery.toLowerCase();
     openModal(`<h2>Añadir ejercicio</h2>
       <input id="pick-q" type="search" placeholder="Buscar…" value="${esc(pickQuery)}">
-      <div class="pick-list">${window.EXERCISES.filter((e) => !q || (e.name + ' ' + exName(e)).toLowerCase().includes(q) || e.groups.join(' ').toLowerCase().includes(q))
-        .map((e) => `<button class="pick" data-action="pick" data-id="${e.id}"><span>${esc(exName(e))}</span><small class="muted">${esc(e.name)} · ${e.groups.join(', ')}</small></button>`).join('')}</div>
+      <div class="pick-list">${allExercises().filter((e) => !q || (e.name + ' ' + exName(e) + ' ' + (e.originalName || '')).toLowerCase().includes(q) || e.groups.join(' ').toLowerCase().includes(q))
+        .map((e) => `<button class="pick" data-action="pick" data-id="${e.id}"><span>${e.source === 'lib' ? '📚 ' : ''}${esc(exName(e))}</span><small class="muted">${exSub(e) ? esc(exSub(e)) + ' · ' : ''}${e.groups.join(', ')}</small></button>`).join('')}</div>
       <button class="btn ghost block" data-action="pick-cancel">Volver</button>`);
     return;
   }
@@ -283,9 +295,11 @@ function readDraftInputs() {
 }
 
 // ---------- EJERCICIOS ----------
-let exQuery = '', exGroup = '';
+let exQuery = '', exGroup = '', exMode = 'mine';
+const modeTabs = () => `<div class="seg"><button class="${exMode === 'mine' ? 'on' : ''}" data-action="mode" data-m="mine">⚔️ Mi arsenal (${allExercises().length})</button><button class="${exMode === 'lib' ? 'on' : ''}" data-action="mode" data-m="lib">🌐 Biblioteca libre</button></div>`;
 function renderEjercicios() {
-  view().innerHTML = `<h1>Arsenal</h1>
+  if (exMode === 'lib') return renderLibrary();
+  view().innerHTML = `<h1>Arsenal</h1>${modeTabs()}
     <input id="ex-q" type="search" placeholder="Buscar ejercicio…" value="${esc(exQuery)}">
     <div class="chips">${['', ...window.GROUPS].map((g) => `<button class="chip ${g === exGroup ? 'on' : ''}" data-action="group" data-g="${esc(g)}">${g || 'Todos'}</button>`).join('')}</div>
     <div id="ex-list"></div>`;
@@ -293,20 +307,63 @@ function renderEjercicios() {
 }
 function renderExList() {
   const q = exQuery.toLowerCase(), kg = currentWeight();
-  const list = window.EXERCISES.filter((e) => (!exGroup || e.groups.includes(exGroup)) && (!q || (e.name + ' ' + exName(e)).toLowerCase().includes(q)));
+  const list = allExercises().filter((e) => (!exGroup || e.groups.includes(exGroup)) && (!q || (e.name + ' ' + exName(e) + ' ' + (e.originalName || '')).toLowerCase().includes(q)));
   $('#ex-list').innerHTML = list.length ? list.map((e) => `<button class="card ex-row" data-action="ex" data-id="${e.id}">
-      <span class="mini-fig">${A.figure(e.id, { avatar: avatarId(), still: true })}</span>
-      <div class="grow"><b>${esc(exName(e))}</b><small class="muted">${esc(e.name)} · ${e.groups.join(' · ')}</small></div>
+      <span class="mini-fig">${exVisual(e, { still: true })}</span>
+      <div class="grow"><b>${e.source === 'lib' ? '📚 ' : ''}${esc(exName(e))}</b><small class="muted">${exSub(e) ? esc(exSub(e)) + ' · ' : ''}${e.groups.join(' · ')}</small></div>
       <div class="right"><span class="tag lvl${e.level}">${LEVELS[e.level]}</span><small class="muted">${num(kcalFor(e.met, 60, kg), 1)} kcal/min</small></div>
-    </button>`).join('') : '<p class="muted">No hay ejercicios con ese filtro.</p>';
+    </button>`).join('') + `<button class="card more-card" data-action="mode" data-m="lib">🌐 <b>¿Quieres más?</b> Más de 800 ejercicios gratis en la Biblioteca libre</button>` : '<p class="muted">No hay ejercicios con ese filtro.</p>';
+}
+
+// ---------- BIBLIOTECA LIBRE ----------
+let libEquip = 'home', libGroup = '', libQuery = '', libShown = 40, libData = null;
+const libById = (id) => EX[id] || libData?.find((x) => x.ex.id === id)?.ex;
+const owned = (id) => state.libExercises.some((e) => e.id === id);
+function renderLibrary() {
+  view().innerHTML = `<h1>Arsenal</h1>${modeTabs()}
+    <p class="muted small">Más de 800 ejercicios gratis con fotos, de <a href="${L.SOURCE}" target="_blank" rel="noopener">Free Exercise DB</a> (dominio público). Añade los que quieras y úsalos en tus misiones.</p>
+    <input id="lib-q" type="search" placeholder="Buscar (español o inglés)…" value="${esc(libQuery)}">
+    <div class="chips">${L.EQUIP_FILTERS.map(([k, label]) => `<button class="chip ${libEquip === k ? 'on' : ''}" data-action="lib-equip" data-k="${k}">${label}</button>`).join('')}</div>
+    <div class="chips">${['', ...window.GROUPS].map((g) => `<button class="chip ${g === libGroup ? 'on' : ''}" data-action="lib-group" data-g="${esc(g)}">${g || 'Todos'}</button>`).join('')}</div>
+    <div id="lib-list"><p class="muted">Cargando biblioteca…</p></div>`;
+  if (libData) return renderLibList();
+  L.load().then((d) => { libData = d; renderLibList(); })
+    .catch((e) => { const el = $('#lib-list'); if (el) el.innerHTML = `<p class="warn-text">${esc(e.message)}. Necesitas conexión a internet la primera vez.</p><button class="btn ghost" data-action="lib-retry">Reintentar</button>`; });
+}
+function renderLibList() {
+  const box = $('#lib-list'); if (!box || !libData) return;
+  const f = (L.EQUIP_FILTERS.find((x) => x[0] === libEquip) || L.EQUIP_FILTERS[0])[2];
+  const q = libQuery.toLowerCase();
+  const list = libData.filter(({ raw, ex }) => f(raw) && (!libGroup || ex.groups.includes(libGroup)) && (!q || (ex.name + ' ' + ex.originalName + ' ' + ex.muscles.join(' ')).toLowerCase().includes(q)));
+  box.innerHTML = `<p class="muted small">${list.length} ejercicios</p>` + list.slice(0, libShown).map(({ ex }) => `<div class="card ex-row lib-row" data-action="ex" data-id="${esc(ex.id)}">
+      <span class="mini-fig">${exVisual(ex, { still: true })}</span>
+      <div class="grow"><b>${esc(ex.name)}</b><small class="muted">${esc(ex.muscles.join(', ') || ex.groups.join(', '))} · ${esc(ex.equipment)}</small></div>
+      <div class="right"><span class="tag lvl${ex.level}">${LEVELS[ex.level]}</span>${owned(ex.id) ? '<small class="owned">✓ En tu arsenal</small>' : `<button class="btn small" data-action="lib-add" data-id="${esc(ex.id)}">+ Añadir</button>`}</div>
+    </div>`).join('') + (list.length > libShown ? `<button class="btn ghost block" data-action="lib-more">Ver más (${list.length - libShown})</button>` : '');
+}
+function addLib(id) {
+  const ex = libById(id); if (!ex || owned(id)) return;
+  state.libExercises.push(JSON.parse(JSON.stringify(ex))); save();
+  toast(`${ex.name} añadido a tu arsenal`);
+}
+function removeLib(id) {
+  const used = state.customRoutines.filter((r) => r.items.some((it) => it.ex === id));
+  if (!confirm(used.length ? `Lo usan tus misiones: ${used.map((r) => r.name).join(', ')}. Se quitará de ellas. ¿Seguro?` : '¿Quitar este ejercicio de tu arsenal?')) return false;
+  state.libExercises = state.libExercises.filter((e) => e.id !== id);
+  used.forEach((r) => { r.items = r.items.filter((it) => it.ex !== id); });
+  delete EX[id]; save(); return true;
 }
 function showExercise(id) {
-  const e = EX[id]; if (!e) return;
-  openModal(`<div class="fig-stage">${A.figure(e.id, { avatar: avatarId() })}</div><h2 class="mb0">${esc(exName(e))}</h2>${exSub(e) ? `<p class="muted mt0">${esc(exSub(e))}</p>` : ''}
+  const e = libById(id); if (!e) return;
+  const lib = e.source === 'lib';
+  openModal(`<div class="fig-stage">${exVisual(e)}</div><h2 class="mb0">${esc(exName(e))}</h2>${exSub(e) ? `<p class="muted mt0">${esc(exSub(e))}</p>` : ''}
+    ${lib ? `<p class="small">💪 ${esc(e.muscles.join(', '))} · 🏋️ ${esc(e.equipment)}</p>` : ''}
     <div class="row wrap">${e.groups.map((g) => `<span class="tag">${g}</span>`).join('')}<span class="tag lvl${e.level}">${LEVELS[e.level]}</span></div>
-    <ol class="steps">${e.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>
+    ${e.stepsLang === 'en' ? '<h3>Instrucciones (en inglés)</h3>' : ''}<ol class="steps">${e.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>
     ${e.tip ? `<p class="tip">💡 ${esc(e.tip)}</p>` : ''}
     <p class="muted small">Por defecto: ${e.type === 'reps' ? e.n + ' repeticiones' : e.n + ' segundos'}${e.perSide ? ' por lado' : ''} · Intensidad ${e.met} MET · ~${num(kcalFor(e.met, 60), 1)} kcal por minuto con tu peso (${num(currentWeight())} kg)</p>
+    ${lib ? (owned(e.id) ? `<button class="btn ghost danger block" data-action="lib-remove" data-id="${esc(e.id)}">Quitar de mi arsenal</button>` : `<button class="btn block" data-action="lib-add" data-id="${esc(e.id)}">+ Añadir a mi arsenal</button>`) : ''}
+    ${lib ? '<p class="muted small center">Fotos e instrucciones: Free Exercise DB (dominio público)</p>' : ''}
     <button class="btn ghost block" data-action="close">Cerrar</button>`);
 }
 
@@ -541,16 +598,16 @@ function renderPlayer() {
   let body;
   if (s.kind === 'ex') {
     body = `<div class="p-label">${s.rounds > 1 ? `Oleada ${s.round}/${s.rounds} · ` : ''}Objetivo ${exIdx}/${P.exCount}</div>
-      <div class="fig-stage player-fig">${A.figure(s.ex.id, { avatar: avatarId() })}</div>
+      <div class="fig-stage player-fig">${exVisual(s.ex)}</div>
       <h2 class="p-name">${esc(exName(s.ex))}</h2>${exSub(s.ex) ? `<div class="p-real">${esc(exSub(s.ex))}</div>` : ''}
       ${s.ex.type === 'reps' ? `<div class="p-big">×${s.n}</div><div class="p-sub">${s.ex.perSide ? 'por lado · ' : ''}<span id="p-time"></span></div>` : `<div class="p-big" id="p-time"></div><div class="p-sub">${s.ex.perSide ? 'Cambia de lado al oír el aviso' : 'segundos'}</div>`}
-      <details class="p-how"><summary>Cómo se hace</summary><ol>${s.ex.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>${s.ex.tip ? `<p>💡 ${esc(s.ex.tip)}</p>` : ''}</details>`;
+      <details class="p-how"><summary>Cómo se hace${s.ex.stepsLang === 'en' ? ' (en inglés)' : ''}</summary><ol>${s.ex.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>${s.ex.tip ? `<p>💡 ${esc(s.ex.tip)}</p>` : ''}</details>`;
   } else {
     const isPrep = s.kind === 'prep';
     body = `<div class="p-label">${isPrep ? 'Despliegue en' : s.endRound ? 'Oleada superada · recarga' : 'Recargando escudos'}</div>
       <div class="p-big" id="p-time"></div>
       ${!isPrep ? `<p class="p-quote">“${esc(P.restLine || A.LINES.rest[0])}”</p>` : ''}
-      ${next ? `<div class="p-next-card"><span class="mini-fig">${A.figure(next.ex.id, { avatar: avatarId() })}</span><div><small class="muted">Siguiente</small><b>${esc(exName(next.ex))}</b><small>${esc(next.ex.name)} · ${next.ex.type === 'reps' ? '×' + next.n : next.n + ' s'}</small></div></div>` : ''}
+      ${next ? `<div class="p-next-card"><span class="mini-fig">${exVisual(next.ex)}</span><div><small class="muted">Siguiente</small><b>${esc(exName(next.ex))}</b><small>${exSub(next.ex) ? esc(exSub(next.ex)) + ' · ' : ''}${next.ex.type === 'reps' ? '×' + next.n : next.n + ' s'}</small></div></div>` : ''}
       <button class="btn ghost small" data-action="p-plus">+10 s</button>`;
   }
   $('#player').innerHTML = `
@@ -703,6 +760,7 @@ function mergeStates(a, b) { // a = local, b = remoto. Une registros de ambos.
     weights: byKey(newer.weights, older.weights, 'date').sort((x, y) => x.date.localeCompare(y.date)),
     sessions: byKey(newer.sessions, older.sessions, 'id').sort((x, y) => x.date.localeCompare(y.date)),
     customRoutines: byKey(newer.customRoutines, older.customRoutines, 'id'),
+    libExercises: byKey(newer.libExercises || [], older.libExercises || [], 'id'),
     updatedAt: Date.now() });
 }
 
@@ -732,6 +790,13 @@ document.addEventListener('click', (ev) => {
     case 'start': return startWorkout(id);
     case 'ex': return showExercise(id);
     case 'group': exGroup = el.dataset.g; return renderEjercicios();
+    case 'mode': exMode = el.dataset.m; closeModal(); tab = 'ejercicios'; render(); window.scrollTo(0, 0); return;
+    case 'lib-equip': libEquip = el.dataset.k; libShown = 40; return renderLibrary();
+    case 'lib-group': libGroup = el.dataset.g; libShown = 40; return renderLibrary();
+    case 'lib-more': libShown += 40; return renderLibList();
+    case 'lib-retry': libData = null; return renderLibrary();
+    case 'lib-add': addLib(id); if ($('#modal').classList.contains('open')) showExercise(id); if (exMode === 'lib') renderLibList(); return;
+    case 'lib-remove': if (removeLib(id)) { closeModal(); render(); toast('Quitado de tu arsenal'); } return;
     case 'new-routine': return editRoutine(null);
     case 'edit-routine': return editRoutine(id);
     case 'copy-routine': return editRoutine(id, true);
@@ -769,6 +834,7 @@ document.addEventListener('click', (ev) => {
 });
 document.addEventListener('input', (ev) => {
   if (ev.target.id === 'ex-q') { exQuery = ev.target.value; renderExList(); }
+  if (ev.target.id === 'lib-q') { libQuery = ev.target.value; libShown = 40; renderLibList(); }
   if (ev.target.id === 'pick-q') {
     pickQuery = ev.target.value; const pos = ev.target.selectionStart; renderDraft();
     const n = $('#pick-q'); n.focus(); n.setSelectionRange(pos, pos);
@@ -795,6 +861,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 // ============ Inicio ============
+registerLib();
 render();
 if (sync.connected) { Drive.setStatus(Drive.validToken() ? 'ok' : 'auth'); if (Drive.validToken()) Drive.syncNow(false); }
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});

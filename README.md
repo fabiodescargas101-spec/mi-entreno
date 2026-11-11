@@ -23,6 +23,14 @@ Las calorías se calculan con el método MET: `kcal = MET × 3,5 × peso ÷ 200 
 
 Los avatares son dibujos propios hechos en SVG (`avatar.js`). Los nombres y rangos son guiños para uso personal; no incluyen arte ni contenido de esos juegos.
 
+## Biblioteca libre
+
+En **Arsenal → Biblioteca libre** hay más de 800 ejercicios gratuitos con fotos, de [Free Exercise DB](https://github.com/yuhonas/free-exercise-db), que es de dominio público (licencia Unlicense). Puedes filtrar por equipo (sin equipo, mancuernas, bandas, kettlebell…) y por músculo, ver las fotos animadas y añadir los que quieras a tu arsenal para usarlos en tus misiones.
+
+- Los nombres de los 188 ejercicios sin equipo están traducidos al español. El resto aparece con su nombre original y las instrucciones están en inglés.
+- La lista y las fotos se descargan de GitHub la primera vez y se guardan para usarlas sin conexión.
+- Los ejercicios que añades se guardan en tu Drive junto con el resto de tus datos.
+
 ## Paso 1 — Publicar la app gratis con GitHub Pages
 
 Google solo permite iniciar sesión desde una dirección `https://`, así que la app tiene que estar publicada en internet. Con GitHub Pages es gratis.
