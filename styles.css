@@ -286,3 +286,22 @@ h3 { text-transform: uppercase; letter-spacing: .06em; font-size: 1rem; color: v
 .more-card { text-align: center; border-style: dashed; border-color: var(--accent); color: var(--text); }
 a { color: var(--accent); }
 .phase-h { margin: 14px 0 0; color: var(--accent); }
+
+/* Mapa muscular */
+.mm { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.mm.small { max-width: 300px; margin: 6px auto; }
+.mm-side { margin: 0; text-align: center; }
+.mm-side figcaption { font-family: var(--display); text-transform: uppercase; letter-spacing: .1em; font-size: .78rem; color: var(--muted); margin-top: 2px; }
+.mm-svg { width: 100%; height: auto; display: block; }
+.mm-base { fill: #232226; }
+.mm-r { fill: #34323a; stroke: #0a0a0b; stroke-width: 1.2; transition: fill .15s; }
+.mm-r[data-action] { cursor: pointer; }
+.mm-r[data-action]:hover { fill: #5a3a28; }
+.mm-r.sel { fill: var(--accent); filter: drop-shadow(0 0 6px rgba(255,107,26,.8)); }
+.mm-r:focus { outline: none; }
+.mm-r:focus-visible { fill: #7a4a2a; }
+.mm-lines path { stroke: #0a0a0b; stroke-width: 1.2; fill: none; pointer-events: none; }
+.mm-card { padding: 12px 10px 6px; background: radial-gradient(300px 200px at 50% 40%, rgba(255,90,31,.08), transparent 70%), linear-gradient(180deg, var(--card-2), var(--card)); }
+.mm-legend { display: flex; align-items: center; gap: 8px; font-size: .75rem; color: var(--muted); justify-content: center; margin: 6px 0; }
+.mm-legend i { width: 120px; height: 8px; border-radius: 8px; background: linear-gradient(90deg, rgba(255,150,40,.3), rgba(255,40,20,1)); }
+.seg button { font-size: .9rem; padding: 9px 4px; }

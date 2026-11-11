@@ -17,6 +17,7 @@ const toNum = (v) => { const n = parseFloat(String(v).replace(',', '.')); return
 
 const EX = Object.fromEntries(window.EXERCISES.map((e) => [e.id, e]));
 const L = window.LIBRARY;
+const MM = window.MUSCLEMAP;
 const allExercises = () => [...window.EXERCISES, ...state.libExercises];
 function registerLib() { state.libExercises.forEach((e) => { EX[e.id] = e; }); }
 const LEVELS = ['', 'Normal', 'Heroico', 'Legendario'];
@@ -299,9 +300,10 @@ function readDraftInputs() {
 
 // ---------- EJERCICIOS ----------
 let exQuery = '', exGroup = '', exMode = 'mine';
-const modeTabs = () => `<div class="seg"><button class="${exMode === 'mine' ? 'on' : ''}" data-action="mode" data-m="mine">⚔️ Mi arsenal (${allExercises().length})</button><button class="${exMode === 'lib' ? 'on' : ''}" data-action="mode" data-m="lib">🌐 Biblioteca libre</button></div>`;
+const modeTabs = () => `<div class="seg">${[['mine', '⚔️ Arsenal'], ['map', '🗺️ Mapa'], ['lib', '🌐 Biblioteca']].map(([m, l]) => `<button class="${exMode === m ? 'on' : ''}" data-action="mode" data-m="${m}">${l}</button>`).join('')}</div>`;
 function renderEjercicios() {
   if (exMode === 'lib') return renderLibrary();
+  if (exMode === 'map') return renderMap();
   view().innerHTML = `<h1>Arsenal</h1>${modeTabs()}
     <input id="ex-q" type="search" placeholder="Buscar ejercicio…" value="${esc(exQuery)}">
     <div class="chips">${['', ...window.GROUPS].map((g) => `<button class="chip ${g === exGroup ? 'on' : ''}" data-action="group" data-g="${esc(g)}">${g || 'Todos'}</button>`).join('')}</div>
@@ -318,8 +320,40 @@ function renderExList() {
     </button>`).join('') + `<button class="card more-card" data-action="mode" data-m="lib">🌐 <b>¿Quieres más?</b> Más de 800 ejercicios gratis en la Biblioteca libre</button>` : '<p class="muted">No hay ejercicios con ese filtro.</p>';
 }
 
+// ---------- MAPA MUSCULAR ----------
+let mapMuscle = '';
+function renderMap() {
+  const kg = currentWeight();
+  let list = '';
+  if (mapMuscle) {
+    const label = MM.LABEL[mapMuscle];
+    const ex = allExercises().map((e) => ({ e, i: MM.musclesOf(e).indexOf(mapMuscle) })).filter((x) => x.i >= 0).sort((a, b) => a.i - b.i);
+    list = `<div class="row between"><h2>${esc(label)}</h2><small class="muted">${ex.length} en tu arsenal</small></div>` +
+      (ex.length ? ex.map(({ e, i }) => `<button class="card ex-row" data-action="ex" data-id="${esc(e.id)}">
+        <span class="mini-fig">${exVisual(e, { still: true })}</span>
+        <div class="grow"><b>${e.source === 'lib' ? '📚 ' : ''}${esc(exName(e))}</b><small class="muted">${i === 0 ? '🎯 Principal' : 'Secundario'} · ${exSub(e) ? esc(exSub(e)) : e.groups.join(', ')}</small></div>
+        <div class="right"><span class="tag lvl${e.level}">${LEVELS[e.level]}</span><small class="muted">${num(kcalFor(e.met, 60, kg), 1)} kcal/min</small></div></button>`).join('') : '<p class="muted">Aún no tienes ejercicios para este músculo.</p>') +
+      `<button class="card more-card" data-action="map-lib" data-m="${esc(mapMuscle)}">🌐 Ver ejercicios de <b>${esc(label)}</b> en la Biblioteca libre</button>`;
+  }
+  view().innerHTML = `<h1>Arsenal</h1>${modeTabs()}
+    <p class="muted small">Toca un músculo para ver sus ejercicios.</p>
+    <div class="mm-card card">${MM.svg({ selected: mapMuscle, clickable: true })}</div>
+    <div id="map-list">${list}</div>`;
+}
+function muscleHeat(sessions) {
+  const h = {};
+  sessions.forEach((s) => (s.exercises || []).forEach((x) => {
+    const ms = MM.musclesOf(EX[x.id]); const w = Math.max(1, x.sec || 20);
+    ms.forEach((m, i) => { h[m] = (h[m] || 0) + w * (i === 0 ? 1 : 0.5); });
+  }));
+  const max = Math.max(0, ...Object.values(h));
+  Object.keys(h).forEach((k) => { h[k] = max ? h[k] / max : 0; });
+  return h;
+}
+const heatTop = (h) => Object.entries(h).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k]) => MM.LABEL[k]).join(', ');
+
 // ---------- BIBLIOTECA LIBRE ----------
-let libEquip = 'home', libGroup = '', libQuery = '', libShown = 40, libData = null;
+let libEquip = 'home', libGroup = '', libQuery = '', libShown = 40, libData = null, libMuscle = '';
 const libById = (id) => EX[id] || libData?.find((x) => x.ex.id === id)?.ex;
 const owned = (id) => state.libExercises.some((e) => e.id === id);
 function renderLibrary() {
@@ -327,7 +361,7 @@ function renderLibrary() {
     <p class="muted small">Más de 800 ejercicios gratis con fotos, de <a href="${L.SOURCE}" target="_blank" rel="noopener">Free Exercise DB</a> (dominio público). Añade los que quieras y úsalos en tus misiones.</p>
     <input id="lib-q" type="search" placeholder="Buscar (español o inglés)…" value="${esc(libQuery)}">
     <div class="chips">${L.EQUIP_FILTERS.map(([k, label]) => `<button class="chip ${libEquip === k ? 'on' : ''}" data-action="lib-equip" data-k="${k}">${label}</button>`).join('')}</div>
-    <div class="chips">${['', ...window.GROUPS].map((g) => `<button class="chip ${g === libGroup ? 'on' : ''}" data-action="lib-group" data-g="${esc(g)}">${g || 'Todos'}</button>`).join('')}</div>
+    ${libMuscle ? `<div class="chips"><button class="chip on" data-action="lib-muscle-clear">🎯 ${esc(MM.LABEL[libMuscle])} ✕</button></div>` : `<div class="chips">${['', ...window.GROUPS].map((g) => `<button class="chip ${g === libGroup ? 'on' : ''}" data-action="lib-group" data-g="${esc(g)}">${g || 'Todos'}</button>`).join('')}</div>`}
     <div id="lib-list"><p class="muted">Cargando biblioteca…</p></div>`;
   if (libData) return renderLibList();
   L.load().then((d) => { libData = d; renderLibList(); })
@@ -337,7 +371,7 @@ function renderLibList() {
   const box = $('#lib-list'); if (!box || !libData) return;
   const f = (L.EQUIP_FILTERS.find((x) => x[0] === libEquip) || L.EQUIP_FILTERS[0])[2];
   const q = libQuery.toLowerCase();
-  const list = libData.filter(({ raw, ex }) => f(raw) && (!libGroup || ex.groups.includes(libGroup)) && (!q || (ex.name + ' ' + ex.originalName + ' ' + ex.muscles.join(' ')).toLowerCase().includes(q)));
+  const list = libData.filter(({ raw, ex }) => f(raw) && (libMuscle ? (raw.primaryMuscles || []).includes(libMuscle) : (!libGroup || ex.groups.includes(libGroup))) && (!q || (ex.name + ' ' + ex.originalName + ' ' + ex.muscles.join(' ')).toLowerCase().includes(q)));
   box.innerHTML = `<p class="muted small">${list.length} ejercicios</p>` + list.slice(0, libShown).map(({ ex }) => `<div class="card ex-row lib-row" data-action="ex" data-id="${esc(ex.id)}">
       <span class="mini-fig">${exVisual(ex, { still: true })}</span>
       <div class="grow"><b>${esc(ex.name)}</b><small class="muted">${esc(ex.muscles.join(', ') || ex.groups.join(', '))} · ${esc(ex.equipment)}</small></div>
@@ -409,6 +443,8 @@ function renderProgreso() {
       ${lineChart(pts, g.goal)}
       ${g.hasGoal ? `<p class="small">${g.done ? '🎉 Objetivo conseguido' : `Faltan <b>${num(g.remaining)} kg</b> · ${num(g.pct, 0)} % completado`}</p>` : ''}
     </div>
+    ${(() => { const recent = state.sessions.filter((x) => new Date(x.date) >= new Date(Date.now() - 7 * DAY)); const h = muscleHeat(recent);
+      return `<div class="card"><h3>Músculos trabajados · últimos 7 días</h3>${recent.length ? `${MM.svg({ heat: h })}<div class="mm-legend"><span>Poco</span><i></i><span>Mucho</span></div><p class="small">Más trabajados: <b>${esc(heatTop(h))}</b></p>` : '<p class="muted">Completa una misión para ver qué músculos trabajaste.</p>'}</div>`; })()}
     <div class="card"><h3>Calorías quemadas por semana</h3>${weeklyBars()}
       <p class="muted small">Total: ${num(totKcal, 0)} kcal en ${state.sessions.length} entrenos (${fmtMin(totSec)}). Equivale a unos ${num(totKcal / 7700, 2)} kg de grasa.</p></div>
     <div class="card"><h3>Registros de peso</h3>
@@ -585,6 +621,7 @@ function finishWorkout() {
     ${up ? `<div class="promo">⬆ ¡ASCENSO! ${after.icon} ${esc(after.name)}</div>` : ''}</div>
     <div class="stats">${stat(fmtMin(s.durationSec), 'tiempo')}${stat(s.kcal, 'kcal')}${stat('+' + s.xp, 'XP')}</div>
     <div class="xpbar"><span style="width:${after.pct.toFixed(1)}%"></span></div>
+    ${(() => { const h = muscleHeat([s]); return Object.keys(h).length ? `<h3 class="center">Músculos trabajados</h3>${MM.svg({ heat: h, small: true })}<p class="center muted small">Sobre todo: ${esc(heatTop(h))}</p>` : ''; })()}
     <p class="center muted small">${after.icon} ${esc(after.name)}${after.next ? ` · faltan ${num(after.toNext, 0)} XP para ${esc(after.next.name)}` : ''}</p>
     <p class="center muted small">Llevas ${weekStats().count} entreno${weekStats().count === 1 ? '' : 's'} esta semana · ${num(weekStats().kcal, 0)} kcal</p>
     <div class="row"><button class="btn" data-action="weight">⚖️ Registrar peso</button><button class="btn ghost" data-action="close">Cerrar</button></div>`);
@@ -800,6 +837,9 @@ document.addEventListener('click', (ev) => {
     case 'ex': return showExercise(id);
     case 'group': exGroup = el.dataset.g; return renderEjercicios();
     case 'mode': exMode = el.dataset.m; closeModal(); tab = 'ejercicios'; render(); window.scrollTo(0, 0); return;
+    case 'muscle': mapMuscle = mapMuscle === el.dataset.m ? '' : el.dataset.m; renderMap(); if (mapMuscle) $('#map-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); return;
+    case 'map-lib': libMuscle = el.dataset.m; libEquip = 'home'; libShown = 40; exMode = 'lib'; render(); window.scrollTo(0, 0); return;
+    case 'lib-muscle-clear': libMuscle = ''; libShown = 40; return renderLibrary();
     case 'lib-equip': libEquip = el.dataset.k; libShown = 40; return renderLibrary();
     case 'lib-group': libGroup = el.dataset.g; libShown = 40; return renderLibrary();
     case 'lib-more': libShown += 40; return renderLibList();

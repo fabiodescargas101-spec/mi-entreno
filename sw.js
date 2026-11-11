@@ -1,7 +1,7 @@
 // Permite usar la app sin conexión. Sube el número de versión cuando cambies archivos.
-const CACHE = 'mi-entreno-v6';
+const CACHE = 'mi-entreno-v7';
 const LIB = 'mi-entreno-biblioteca';
-const FILES = ['./', 'index.html', 'styles.css', 'app.js', 'exercises.js', 'avatar.js', 'library.js', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'];
+const FILES = ['./', 'index.html', 'styles.css', 'app.js', 'exercises.js', 'avatar.js', 'library.js', 'musclemap.js', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener('activate', (e) => {

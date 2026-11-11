@@ -41,6 +41,14 @@ Usan 12 ejercicios funcionales nuevos con avatar animado: Despliegue Táctico (s
 
 En `exercises.js`, un ejercicio con `t` en lugar de `n` se hace por tiempo (t segundos a tope), y `roundRest` fija el descanso entre vueltas.
 
+## Mapa muscular
+
+- **Arsenal → 🗺️ Mapa:** un cuerpo de frente y de espaldas. Toca un músculo para ver sus ejercicios (los principales primero) y salta a la Biblioteca libre filtrada por ese músculo.
+- **Al terminar una misión** se ven en naranja y rojo los músculos trabajados.
+- **En Progreso** aparece el mapa de calor de los últimos 7 días.
+
+El dibujo es propio (`musclemap.js`). La idea está inspirada en el mapa de MuscleWiki, pero no usa contenido suyo.
+
 ## Biblioteca libre
 
 En **Arsenal → Biblioteca libre** hay más de 800 ejercicios gratuitos con fotos, de [Free Exercise DB](https://github.com/yuhonas/free-exercise-db), que es de dominio público (licencia Unlicense). Puedes filtrar por equipo (sin equipo, mancuernas, bandas, kettlebell…) y por músculo, ver las fotos animadas y añadir los que quieras a tu arsenal para usarlos en tus misiones.

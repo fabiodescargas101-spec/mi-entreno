@@ -111,6 +111,7 @@
       groups: [...new Set(groups)].slice(0, 4), level: lvl, met,
       type: timed ? 'time' : 'reps', n: timed ? 30 : cardio ? 10 : 12, secPerRep: cardio ? 2 : 3,
       muscles: (x.primaryMuscles || []).map((m) => MUSCLE[m] || m),
+      muscleKeys: [...new Set([...(x.primaryMuscles || []), ...(x.secondaryMuscles || [])])],
       equipment: EQUIP[x.equipment] || x.equipment || 'Sin equipo',
       steps: x.instructions || [], stepsLang: 'en',
       images: (x.images || []).map(IMG),
