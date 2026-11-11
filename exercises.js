@@ -236,7 +236,9 @@ const WARMUP = [{ ex: 'jumping-jacks', n: 45 }, { ex: 'arm-circles', n: 30 }, { 
 const COOLDOWN = [{ ex: 'child-pose', n: 40 }, { ex: 'cobra', n: 30 }, { ex: 'hamstring-stretch', n: 40 }, { ex: 'hip-flexor-stretch', n: 30 }, { ex: 'quad-stretch', n: 30 }, { ex: 'chest-stretch', n: 30 }];
 
 /* Rutinas predefinidas. items: { ex: id del ejercicio, n: repeticiones o segundos }
- * warmup / cooldown (opcionales): se hacen una vez, antes y después de las oleadas. */
+ * warmup / cooldown (opcionales): se hacen una vez, antes y después de las oleadas.
+ * Un item con t en lugar de n se hace por tiempo: t segundos a tope.
+ * roundRest (opcional): descanso entre vueltas; por defecto el doble del descanso normal (mínimo 45 s). */
 window.ROUTINES = [
   { id: 'r-principiante', name: 'Cuerpo completo · Principiante', level: 1, rest: 30, rounds: 2,
     desc: 'Para empezar o volver a entrenar. Todo el cuerpo, sin saltos difíciles.',
@@ -291,6 +293,20 @@ window.ROUTINES = [
   { id: 'r-maestro-dragon', name: 'Prueba del Maestro Dragón', level: 3, rest: 20, rounds: 4, warmup: WARMUP, cooldown: COOLDOWN,
     desc: 'La prueba final del linaje. Equilibrio, potencia y control absoluto del cuerpo.',
     items: [{ ex: 'jump-rope', n: 60 }, { ex: 'split-jump', n: 16 }, { ex: 'pistol-squat', n: 6 }, { ex: 'spiderman-pushup', n: 10 }, { ex: 'skater-jumps', n: 45 }, { ex: 'burpee-tuck', n: 8 }, { ex: 'hollow-hold', n: 45 }, { ex: 'v-up', n: 15 }, { ex: 'side-plank', n: 40 }, { ex: 'shadow-boxing', n: 60 }] },
+
+  // ===== CIRCUITOS POR TIEMPO Y PIRÁMIDE (t = segundos a tope, sin contar repeticiones) =====
+  { id: 'r-circuito-asalto', name: 'Circuito de Asalto 50/10', level: 2, rest: 10, roundRest: 60, rounds: 4, warmup: WARMUP, cooldown: COOLDOWN,
+    desc: 'Circuito por estaciones: 50 segundos a tope y 10 de cambio. Cuatro vueltas con 1 minuto de recarga entre ellas.',
+    items: [{ ex: 'jumping-jacks', t: 50 }, { ex: 'squat', t: 50 }, { ex: 'burpees', t: 50 }, { ex: 'high-knees', t: 50 }, { ex: 'plank-to-pushup', t: 50 }, { ex: 'lunge', t: 50 }, { ex: 'mountain-climbers', t: 50 }, { ex: 'knee-pushup', t: 50 }, { ex: 'skater-jumps', t: 50 }, { ex: 'shadow-boxing', t: 50 }] },
+  { id: 'r-infierno-tabata', name: 'Infierno Tabata', level: 3, rest: 10, roundRest: 60, rounds: 8, warmup: WARMUP, cooldown: COOLDOWN,
+    desc: 'Ocho rondas de 9 ejercicios explosivos: 20 segundos a fuego y 10 de respiro. El reloj es tu enemigo.',
+    items: [{ ex: 'split-jump', t: 20 }, { ex: 'plank-jack', t: 20 }, { ex: 'high-knees', t: 20 }, { ex: 'star-jump', t: 20 }, { ex: 'reverse-crunch', t: 20 }, { ex: 'tuck-jump', t: 20 }, { ex: 'glute-bridge', t: 20 }, { ex: 'mountain-climbers', t: 20 }, { ex: 'shadow-boxing', t: 20 }] },
+  { id: 'r-quemagrasa', name: 'Operación Quemagrasa', level: 2, rest: 30, rounds: 4, warmup: WARMUP, cooldown: COOLDOWN,
+    desc: 'Alta intensidad sin material para fundir grasa. Repeticiones fijas; si vas sobrado, copia la misión y súbela a 5 o 6 oleadas.',
+    items: [{ ex: 'jumping-jacks', n: 30 }, { ex: 'pushup', n: 10 }, { ex: 'mountain-climbers', n: 30 }, { ex: 'side-plank', n: 20 }, { ex: 'plank', n: 40 }, { ex: 'donkey-kick', n: 12 }, { ex: 'squat', n: 20 }, { ex: 'bicycle-crunch', n: 20 }, { ex: 'squat-thrust', n: 12 }, { ex: 'high-knees', n: 40 }] },
+  { id: 'r-piramide', name: 'Pirámide de Hierro', level: 3, rest: 20, roundRest: 60, rounds: 1, warmup: WARMUP, cooldown: COOLDOWN,
+    desc: 'Burpees, sentadillas y flexiones en pirámide: sube de 2 a 12 y vuelve a bajar. Cada escalón pesa más que el anterior.',
+    items: [2, 4, 6, 8, 10, 12, 10, 8, 6, 4, 2].flatMap((k) => [{ ex: 'burpees', n: k }, { ex: 'squat', n: k * 2 }, { ex: 'pushup', n: k }, { ex: 'mountain-climbers', n: 20 + k * 2 }]) },
 ];
 
 /* ---------- Nombres de guerra ----------

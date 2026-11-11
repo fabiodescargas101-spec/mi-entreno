@@ -236,7 +236,8 @@ function renderEntrenar() {
     <h2>Campaña</h2>
     ${window.ROUTINES.map((r) => routineCard(r, false)).join('')}`;
 }
-const exListHtml = (items) => `<ol class="ex-list">${items.map((it) => { const ex = EX[it.ex]; if (!ex) return ''; return `<li data-action="ex" data-id="${ex.id}"><span class="mini-fig">${exVisual(ex, { still: true })}</span><span>${esc(exName(ex))}${exSub(ex) ? `<small class="muted sub">${esc(exSub(ex))}</small>` : ''}</span><b>${ex.type === 'reps' ? '×' + it.n : it.n + ' s'}${ex.perSide ? ' <small>por lado</small>' : ''}</b></li>`; }).join('')}</ol>`;
+const itLabel = (ex, it) => (it.t ? it.t + ' s' : ex.type === 'reps' ? '×' + it.n : it.n + ' s');
+const exListHtml = (items) => `<ol class="ex-list">${items.map((it) => { const ex = EX[it.ex]; if (!ex) return ''; return `<li data-action="ex" data-id="${ex.id}"><span class="mini-fig">${exVisual(ex, { still: true })}</span><span>${esc(exName(ex))}${exSub(ex) ? `<small class="muted sub">${esc(exSub(ex))}</small>` : ''}</span><b>${itLabel(ex, it)}${ex.perSide && !it.t ? ' <small>por lado</small>' : ''}</b></li>`; }).join('')}</ol>`;
 function showRoutine(id) {
   const r = findRoutine(id); if (!r) return;
   const e = routineEstimate(r);
@@ -280,8 +281,8 @@ function renderDraft() {
     <div class="row"><label>Descanso (s)<input id="d-rest" type="number" min="0" max="300" value="${draft.rest}"></label>
     <label>Vueltas<input id="d-rounds" type="number" min="1" max="10" value="${draft.rounds || 1}"></label></div>
     <ol class="ex-list edit">${draft.items.map((it, i) => { const ex = EX[it.ex]; return `<li>
-      <span>${esc(ex ? exName(ex) : it.ex)}<small class="muted"> ${ex && ex.type === 'reps' ? 'reps' : 'seg'}${ex && ex.perSide ? ' por lado' : ''}</small></span>
-      <input type="number" min="1" max="600" value="${it.n}" data-n="${i}">
+      <span>${esc(ex ? exName(ex) : it.ex)}<small class="muted"> ${it.t || !ex || ex.type !== 'reps' ? 'seg' : 'reps'}${ex && ex.perSide ? ' por lado' : ''}</small></span>
+      <input type="number" min="1" max="600" value="${it.t ?? it.n}" data-n="${i}">
       <span class="mini"><button data-action="mv" data-i="${i}" data-d="-1" aria-label="Subir">↑</button><button data-action="mv" data-i="${i}" data-d="1" aria-label="Bajar">↓</button><button data-action="rm" data-i="${i}" aria-label="Quitar">✕</button></span>
     </li>`; }).join('')}</ol>
     <button class="btn ghost block" data-action="pick-open">+ Añadir ejercicio</button>
@@ -293,7 +294,7 @@ function readDraftInputs() {
   const n = $('#d-name'); if (n) draft.name = n.value.trim();
   const r = $('#d-rest'); if (r) draft.rest = clamp(parseInt(r.value) || 0, 0, 300);
   const k = $('#d-rounds'); if (k) draft.rounds = clamp(parseInt(k.value) || 1, 1, 10);
-  document.querySelectorAll('[data-n]').forEach((inp) => { const it = draft.items[+inp.dataset.n]; if (it) it.n = clamp(parseInt(inp.value) || 1, 1, 600); });
+  document.querySelectorAll('[data-n]').forEach((inp) => { const it = draft.items[+inp.dataset.n]; if (it) it[it.t != null ? 't' : 'n'] = clamp(parseInt(inp.value) || 1, 1, 600); });
 }
 
 // ---------- EJERCICIOS ----------
@@ -497,16 +498,16 @@ function buildSteps(r) {
   const rounds = r.rounds || 1;
   const phase = (items, name, rest) => items.forEach((it, i) => {
     const ex = EX[it.ex]; if (!ex) return;
-    steps.push({ kind: 'ex', ex, n: it.n, sec: ex.type === 'time' ? it.n * (ex.perSide ? 2 : 1) : null, phase: name });
+    steps.push({ kind: 'ex', ex, n: it.n, t: it.t, sec: it.t || (ex.type === 'time' ? it.n * (ex.perSide ? 2 : 1) : null), phase: name });
     if (i < items.length - 1 && rest > 0) steps.push({ kind: 'rest', sec: rest });
   });
   if (r.warmup && r.warmup.length) { phase(r.warmup, 'warm', 10); steps.push({ kind: 'rest', sec: 30, label: 'Calentamiento listo · comienza la operación' }); }
   for (let k = 0; k < rounds; k++) {
     r.items.forEach((it, i) => {
       const ex = EX[it.ex]; if (!ex) return;
-      steps.push({ kind: 'ex', ex, n: it.n, sec: ex.type === 'time' ? it.n * (ex.perSide ? 2 : 1) : null, round: k + 1, rounds });
+      steps.push({ kind: 'ex', ex, n: it.n, t: it.t, sec: it.t || (ex.type === 'time' ? it.n * (ex.perSide ? 2 : 1) : null), round: k + 1, rounds });
       const isLast = k === rounds - 1 && i === r.items.length - 1;
-      if (!isLast && r.rest > 0) steps.push({ kind: 'rest', sec: i === r.items.length - 1 ? Math.max(45, r.rest * 2) : r.rest, endRound: i === r.items.length - 1 });
+      if (!isLast && r.rest > 0) steps.push({ kind: 'rest', sec: i === r.items.length - 1 ? (r.roundRest ?? Math.max(45, r.rest * 2)) : r.rest, endRound: i === r.items.length - 1 });
     });
   }
   if (r.cooldown && r.cooldown.length) { steps.push({ kind: 'rest', sec: 45, label: '¡Operación completada! · vuelta a la calma' }); phase(r.cooldown, 'cool', 5); }
@@ -526,7 +527,7 @@ async function startWorkout(id) {
 function announce() {
   const s = P.steps[P.i]; if (!s) return;
   if (s.kind === 'prep') say(`Despliegue en diez segundos. Primero: ${P.steps[1]?.ex ? exName(P.steps[1].ex) : ''}`);
-  else if (s.kind === 'ex') say(s.ex.type === 'reps' ? `${exName(s.ex)}. ${s.n} repeticiones${s.ex.perSide ? ' por lado' : ''}` : `${exName(s.ex)}. ${s.n} segundos${s.ex.perSide ? ' por lado' : ''}`);
+  else if (s.kind === 'ex') say(s.t ? `${exName(s.ex)}. ${s.t} segundos a tope` : s.ex.type === 'reps' ? `${exName(s.ex)}. ${s.n} repeticiones${s.ex.perSide ? ' por lado' : ''}` : `${exName(s.ex)}. ${s.n} segundos${s.ex.perSide ? ' por lado' : ''}`);
   else if (s.kind === 'rest') { const nx = P.steps[P.i + 1]; say(`${P.restLine} Siguiente: ${nx?.ex ? exName(nx.ex) : ''}`); }
 }
 function tick() {
@@ -545,9 +546,9 @@ function tick() {
 }
 function recordStep() {
   const s = P.steps[P.i]; if (!s || s.kind !== 'ex' || P.elapsed < 1) return;
-  const cap = s.ex.type === 'reps' ? exActiveSec(s.ex, s.n) * 3 : s.sec; // por si te dejas el móvil sin tocar
+  const cap = s.sec == null ? exActiveSec(s.ex, s.n) * 3 : s.sec; // por si te dejas el móvil sin tocar
   const sec = Math.min(P.elapsed, cap);
-  P.log.push({ id: s.ex.id, reps: s.ex.type === 'reps' ? s.n : undefined, sec: Math.round(sec), kcal: kcalFor(s.ex.met, sec) });
+  P.log.push({ id: s.ex.id, reps: s.sec == null ? s.n : undefined, sec: Math.round(sec), kcal: kcalFor(s.ex.met, sec) });
 }
 function nextStep() { recordStep(); P.i++; P.elapsed = 0; P.beeped = {}; P.restLine = A.pick(A.LINES.rest); if (P.i >= P.steps.length) return finishWorkout(); announce(); renderPlayer(); }
 function prevStep() {
@@ -609,14 +610,14 @@ function renderPlayer() {
     body = `<div class="p-label">${s.phase === 'warm' ? 'Calentamiento · ' : s.phase === 'cool' ? 'Vuelta a la calma · ' : ''}${s.rounds > 1 ? `Oleada ${s.round}/${s.rounds} · ` : ''}Objetivo ${exIdx}/${P.exCount}</div>
       <div class="fig-stage player-fig">${exVisual(s.ex)}</div>
       <h2 class="p-name">${esc(exName(s.ex))}</h2>${exSub(s.ex) ? `<div class="p-real">${esc(exSub(s.ex))}</div>` : ''}
-      ${s.ex.type === 'reps' ? `<div class="p-big">×${s.n}</div><div class="p-sub">${s.ex.perSide ? 'por lado · ' : ''}<span id="p-time"></span></div>` : `<div class="p-big" id="p-time"></div><div class="p-sub">${s.ex.perSide ? 'Cambia de lado al oír el aviso' : 'segundos'}</div>`}
+      ${s.sec == null ? `<div class="p-big">×${s.n}</div><div class="p-sub">${s.ex.perSide ? 'por lado · ' : ''}<span id="p-time"></span></div>` : `<div class="p-big" id="p-time"></div><div class="p-sub">${s.t ? 'a tope · todas las que puedas' : s.ex.perSide ? 'Cambia de lado al oír el aviso' : 'segundos'}</div>`}
       <details class="p-how"><summary>Cómo se hace${s.ex.stepsLang === 'en' ? ' (en inglés)' : ''}</summary><ol>${s.ex.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>${s.ex.tip ? `<p>💡 ${esc(s.ex.tip)}</p>` : ''}</details>`;
   } else {
     const isPrep = s.kind === 'prep';
     body = `<div class="p-label">${isPrep ? 'Despliegue en' : s.label ? esc(s.label) : s.endRound ? 'Oleada superada · recarga' : 'Recargando escudos'}</div>
       <div class="p-big" id="p-time"></div>
       ${!isPrep ? `<p class="p-quote">“${esc(P.restLine || A.LINES.rest[0])}”</p>` : ''}
-      ${next ? `<div class="p-next-card"><span class="mini-fig">${exVisual(next.ex)}</span><div><small class="muted">Siguiente</small><b>${esc(exName(next.ex))}</b><small>${exSub(next.ex) ? esc(exSub(next.ex)) + ' · ' : ''}${next.ex.type === 'reps' ? '×' + next.n : next.n + ' s'}</small></div></div>` : ''}
+      ${next ? `<div class="p-next-card"><span class="mini-fig">${exVisual(next.ex)}</span><div><small class="muted">Siguiente</small><b>${esc(exName(next.ex))}</b><small>${exSub(next.ex) ? esc(exSub(next.ex)) + ' · ' : ''}${itLabel(next.ex, next)}</small></div></div>` : ''}
       <button class="btn ghost small" data-action="p-plus">+10 s</button>`;
   }
   $('#player').innerHTML = `
@@ -625,11 +626,10 @@ function renderPlayer() {
     <div class="p-body ${s.kind}">${body}</div>
     <div class="p-controls">
       <button class="icon" data-action="p-prev" aria-label="Anterior">⏮</button>
-      ${s.kind === 'ex' && s.ex.type === 'reps' ? `<button class="btn big-btn p-main" data-action="p-next">✓ Hecho</button>` : `<button class="btn big-btn p-main" data-action="p-pause">${P.running ? '❚❚ Pausa' : '▶ Seguir'}</button>`}
+      ${s.kind === 'ex' && s.sec == null ? `<button class="btn big-btn p-main" data-action="p-next">✓ Hecho</button>` : `<button class="btn big-btn p-main" data-action="p-pause">${P.running ? '❚❚ Pausa' : '▶ Seguir'}</button>`}
       <button class="icon" data-action="p-next" aria-label="Saltar">⏭</button>
     </div>
     ${!P.running ? '<div class="p-paused">En pausa</div>' : ''}`;
-  if (s.kind === 'ex' && s.ex.type === 'reps' && !P.running) { /* reps: se pausa solo el reloj */ }
   updatePlayerTime();
 }
 function updatePlayerTime() {

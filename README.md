@@ -32,6 +32,15 @@ Siete misiones de cuerpo completo, funcionales y sin equipo, de unos 60 minutos 
 
 Usan 12 ejercicios funcionales nuevos con avatar animado: Despliegue Táctico (squat thrust), Salto Gravitatorio (tuck jump), Gateo del Berserker (bear crawl), Flanqueo Lateral, Casco de Canoa (hollow hold), Salto Cruzado Hayabusa, Ascenso Mjolnir, Supernova (salto estrella), Flexión Reptante Ninja, Sentadilla Pistola del Slayer, Plancha Propulsada y Burpee del Apocalipsis.
 
+## Circuitos por tiempo y pirámide
+
+- **Circuito de Asalto 50/10** (Heroico): 10 estaciones de 50 s a tope y 10 s de cambio, 4 vueltas con 1 min entre ellas.
+- **Infierno Tabata** (Legendario): 8 rondas de 9 ejercicios, 20 s a fuego y 10 s de respiro.
+- **Operación Quemagrasa** (Heroico): alta intensidad sin material, con repeticiones fijas.
+- **Pirámide de Hierro** (Legendario): burpees, sentadillas y flexiones de 2 a 12 repeticiones y vuelta a bajar.
+
+En `exercises.js`, un ejercicio con `t` en lugar de `n` se hace por tiempo (t segundos a tope), y `roundRest` fija el descanso entre vueltas.
+
 ## Biblioteca libre
 
 En **Arsenal → Biblioteca libre** hay más de 800 ejercicios gratuitos con fotos, de [Free Exercise DB](https://github.com/yuhonas/free-exercise-db), que es de dominio público (licencia Unlicense). Puedes filtrar por equipo (sin equipo, mancuernas, bandas, kettlebell…) y por músculo, ver las fotos animadas y añadir los que quieras a tu arsenal para usarlos en tus misiones.
