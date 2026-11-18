@@ -225,11 +225,12 @@ function toast(msg) {
   const t = $('#toast'); t.textContent = msg; t.classList.add('show');
   clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 3200);
 }
-function openModal(html) { $('#modal-body').innerHTML = html; $('#modal').classList.add('open'); $('#modal').scrollTop = 0; $('#modal-body').scrollTop = 0; }
-function closeModal() { $('#modal').classList.remove('open'); }
+function openModal(html) { modalBack = null; curView = null; $('#modal-body').innerHTML = html; $('#modal').classList.add('open'); $('#modal').scrollTop = 0; $('#modal-body').scrollTop = 0; }
+function closeModal() { modalBack = null; curView = null; $('#modal').classList.remove('open'); }
 function go(t) { tab = t; closeModal(); render(); window.scrollTo(0, 0); }
 
 function render() {
+  const bb = $('#back-btn'); if (bb) bb.hidden = tab === 'hoy' && !(tab === 'ejercicios' && exMode !== 'mine');
   document.querySelectorAll('.nav button').forEach((b) => b.classList.toggle('active', b.dataset.tab === tab));
   ({ hoy: renderHoy, entrenar: renderEntrenar, ejercicios: renderEjercicios, progreso: renderProgreso, ajustes: renderAjustes })[tab]();
   Drive.renderChip();
@@ -337,6 +338,7 @@ const LOG_FIELDS = {
 const logNum = (v, k) => toNum(k === 'sleep' ? v : String(v).replace(/[.\s]/g, '').replace(',', '.')); // 10.000 pasos → 10000
 function logMenu() {
   openModal(`<h2>Registrar</h2><div class="log-grid">${LOGS.map(([k, ic, l]) => `<button class="log-opt" data-action="log" data-k="${k}"><span>${ic}</span>${l}</button>`).join('')}</div><button class="btn ghost block" data-action="close">Cerrar</button>`);
+  curView = logMenu;
 }
 function logModal(k) {
   if (k === 'weight') return weightModal();
@@ -449,6 +451,7 @@ function showQuick(q) {
   const [title, list, desc] = quickList(q);
   openModal(`<h2>${esc(title)}</h2>${desc ? `<p class="muted">${esc(desc)}</p>` : ''}<p class="muted small">${list.length} misiones</p>
     <div class="m-list">${list.map(mRow).join('') || '<p class="muted">Nada por aquí todavía.</p>'}</div><button class="btn ghost block" data-action="close">Cerrar</button>`);
+  curView = () => showQuick(q);
 }
 function renderEntrenar() {
   const focus = PG.BODY.find((b) => b[0] === focusKey) || PG.BODY[0];
@@ -500,6 +503,7 @@ function showProgram(pid) {
     <p class="muted small">Entre misión y misión deja 1 día de descanso si notas las piernas cargadas.</p>
     <div class="sticky-cta"><button class="btn block big-btn cta-grad" data-action="prog-start" data-id="${p.id}">${st.day >= p.days.length ? 'Repetir campaña' : `Empezar día ${st.day + 1}`}</button></div>
     ${st.day > 0 ? `<button class="btn ghost block danger" data-action="prog-reset" data-id="${p.id}">Reiniciar campaña</button>` : ''}`);
+  curView = () => showProgram(pid);
 }
 function startProgram(pid) {
   const p = findProg(pid); const st = progState(pid);
@@ -538,7 +542,8 @@ function showRoutine(id, keepScroll, prog) {
     <p class="muted small">Arrastra ≡ para cambiar el orden, toca ⇄ para sustituir y toca un ejercicio para ver cómo se hace y ajustar su tiempo.${state.overrides[id] ? ` <button class="link" data-action="reset-routine" data-id="${esc(id)}">Restaurar original</button>` : ''}</p>
     <div class="row">${custom ? `<button class="btn ghost" data-action="edit-routine" data-id="${esc(id)}">Editar</button><button class="btn ghost danger" data-action="del-routine" data-id="${esc(id)}">Borrar</button>` : `<button class="btn ghost" data-action="copy-routine" data-id="${esc(id)}">Copiar como mía</button>`}</div>
     <div class="sticky-cta"><button class="btn block big-btn cta-grad" data-action="start" data-id="${esc(id)}">Comienzo</button></div>`);
-  rCtx = { id, prog };
+  rCtx = { id, prog, back: rCtx && rCtx.id === id ? rCtx.back : null };
+  modalBack = prog ? () => showProgram(prog.pid) : rCtx.back; curView = () => showRoutine(id, false);
   if (keepScroll) $('#modal-body').scrollTop = scroll;
 }
 function routineList(r) { return PHASES.flatMap(([ph]) => (r[ph] || []).map((it, i) => ({ ph, i, it }))); }
@@ -558,6 +563,7 @@ function exSheet(phase, i) {
     <p class="muted small">~${num(kcalFor(ex.met, 60), 1)} kcal/min con tu peso · ${LEVELS[ex.level]}</p>
     <div class="xs-foot"><button class="icon" data-action="xs-nav" data-d="-1" ${k === 0 ? 'disabled' : ''} aria-label="Anterior">⏮</button><span>${k + 1}/${list.length}</span><button class="icon" data-action="xs-nav" data-d="1" ${k === list.length - 1 ? 'disabled' : ''} aria-label="Siguiente">⏭</button><button class="btn cta-grad" data-action="xs-close">CERRAR</button></div>`);
   Object.assign(rCtx, { phase, i, sheet: true });
+  modalBack = () => { rCtx.sheet = false; showRoutine(rCtx.id, true); };
 }
 function adjustItem(d) {
   const r = findRoutine(rCtx.id), parts = editable(r), it = parts[rCtx.phase][rCtx.i], ex = EX[it.ex];
@@ -575,6 +581,7 @@ function swapModal(phase, i) {
   openModal(`<h2>Sustituir</h2><p class="muted small">En lugar de <b>${esc(exName(cur))}</b>, elige uno parecido (misma zona principal).</p>
     <div>${cands.map((e) => `<button class="card ex-row" data-action="swap-pick" data-id="${esc(e.id)}"><span class="mini-fig">${exVisual(e, { still: true })}</span><div class="grow"><b>${esc(exName(e))}</b><small class="muted">${exSub(e) ? esc(exSub(e)) + ' · ' : ''}${e.groups.join(', ')}</small></div><span class="tag lvl${e.level}">${LEVELS[e.level]}</span></button>`).join('')}</div>
     <button class="btn ghost block" data-action="swap-cancel">Volver</button>`);
+  modalBack = () => (rCtx.fromSheet ? exSheet(rCtx.phase, rCtx.i) : showRoutine(rCtx.id, true));
 }
 function swapPick(newId) {
   const r = findRoutine(rCtx.id), parts = editable(r), it = parts[rCtx.phase][rCtx.i], ex = EX[newId];
@@ -621,6 +628,7 @@ function renderDraft() {
       <div class="pick-list">${allExercises().filter((e) => !q || (e.name + ' ' + exName(e) + ' ' + (e.originalName || '')).toLowerCase().includes(q) || e.groups.join(' ').toLowerCase().includes(q))
         .map((e) => `<button class="pick" data-action="pick" data-id="${e.id}"><span>${e.source === 'lib' ? '📚 ' : ''}${esc(exName(e))}</span><small class="muted">${exSub(e) ? esc(exSub(e)) + ' · ' : ''}${e.groups.join(', ')}</small></button>`).join('')}</div>
       <button class="btn ghost block" data-action="pick-cancel">Volver</button>`);
+    modalBack = () => { picking = false; renderDraft(); };
     return;
   }
   const e = routineEstimate(draft);
@@ -1203,7 +1211,7 @@ function mergeStates(a, b) { // a = local, b = remoto. Une registros de ambos.
 }
 
 // ============ Eventos ============
-document.addEventListener('click', (ev) => {
+function onClick(ev) {
   const el = ev.target.closest('[data-action],[data-tab]');
   if (!el) { if (ev.target.id === 'modal') closeModal(); return; }
   const a = el.dataset.action, id = el.dataset.id;
@@ -1334,7 +1342,36 @@ document.addEventListener('click', (ev) => {
     case 'wipe':
       if (confirm('Esto borra todos los datos de ESTE dispositivo (no los de Drive). ¿Seguro?')) { state = defaults(); persist(); sync.lastSyncedAt = 0; saveSync(); render(); toast('Datos borrados'); }
       return;
+    case 'back': return backAction();
   }
+}
+// Al abrir una ficha desde otra ventana, «atrás» vuelve a la ventana anterior
+const OPENERS = new Set(['routine', 'ex', 'log', 'prog-open', 'goals', 'info-points', 'info-rec']);
+document.addEventListener('click', (ev) => {
+  const el = ev.target.closest('[data-action]');
+  const prev = el && $('#modal').classList.contains('open') && el.closest('#modal') ? curView : null;
+  onClick(ev);
+  if (prev && OPENERS.has(el.dataset.action) && $('#modal').classList.contains('open') && !modalBack) {
+    modalBack = prev; if (el.dataset.action === 'routine' && rCtx) rCtx.back = prev;
+  }
+});
+
+// ============ Botón y gesto «atrás» del móvil ============
+// La app guarda siempre una entrada extra en el historial: al pulsar atrás se navega dentro de la app
+// (cierra el entreno o la ventana abierta, vuelve a la anterior o a la Base) y solo sale si lo pulsas dos veces en la Base.
+let modalBack = null, curView = null, lastBack = 0;
+function backAction() {
+  if ($('#player').classList.contains('open')) { quitWorkout(); return true; }
+  if ($('#modal').classList.contains('open')) { const f = modalBack; if (f) f(); else closeModal(); return true; }
+  if (tab === 'ejercicios' && exMode !== 'mine') { exMode = 'mine'; render(); window.scrollTo(0, 0); return true; }
+  if (tab !== 'hoy') { go('hoy'); return true; }
+  return false;
+}
+try { history.replaceState({ root: true }, ''); history.pushState({ app: true }, ''); } catch (e) {}
+window.addEventListener('popstate', () => {
+  if (backAction()) { history.pushState({ app: true }, ''); return; }
+  if (Date.now() - lastBack < 2500) { history.back(); return; } // segunda pulsación: salir
+  lastBack = Date.now(); toast('Pulsa atrás otra vez para salir'); history.pushState({ app: true }, '');
 });
 document.addEventListener('input', (ev) => {
   if (ev.target.id === 'ex-q') { exQuery = ev.target.value; renderExList(); }
