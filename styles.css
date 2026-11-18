@@ -472,3 +472,7 @@ a { color: var(--accent); }
 .xs-foot span { font-weight: 700; min-width: 44px; text-align: center; }
 .xs-foot .btn { flex: 1; }
 @media (min-width: 560px) { .prog-card { width: 420px; } }
+
+/* Botón atrás */
+.back-btn { border: 1px solid var(--line); background: var(--card); color: var(--text); width: 36px; height: 36px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: grid; place-items: center; margin-right: 2px; }
+.back-btn[hidden] { display: none; }

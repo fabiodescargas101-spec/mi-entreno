@@ -1,5 +1,5 @@
 // Permite usar la app sin conexión. Sube el número de versión cuando cambies archivos.
-const CACHE = 'mi-entreno-v8';
+const CACHE = 'mi-entreno-v9';
 const LIB = 'mi-entreno-biblioteca';
 const FILES = ['./', 'index.html', 'styles.css', 'app.js', 'exercises.js', 'programs.js', 'avatar.js', 'library.js', 'musclemap.js', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'];
 
