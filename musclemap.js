@@ -30,6 +30,16 @@
     'hollow-hold': ['abdominals'], 'split-jump': ['quadriceps', 'glutes', 'calves'], 'plank-to-pushup': ['triceps', 'shoulders', 'abdominals'],
     'star-jump': ['quadriceps', 'calves', 'shoulders'], 'spiderman-pushup': ['chest', 'abdominals', 'triceps'], 'pistol-squat': ['quadriceps', 'glutes'],
     'plank-jack': ['abdominals', 'shoulders', 'abductors'], 'burpee-tuck': ['quadriceps', 'chest', 'abdominals', 'shoulders'],
+    'pullup': ['lats', 'biceps', 'middle back', 'forearms'], 'negative-pullup': ['lats', 'biceps', 'forearms'], 'dead-hang': ['forearms', 'lats', 'shoulders'],
+    'hanging-knee-raise': ['abdominals', 'forearms'], 'australian-row': ['middle back', 'lats', 'biceps'], 'archer-pushup': ['chest', 'triceps', 'shoulders'],
+    'hindu-pushup': ['chest', 'shoulders', 'triceps', 'lower back'], 'l-sit': ['abdominals', 'triceps', 'quadriceps'], 'wall-handstand': ['shoulders', 'triceps', 'traps', 'abdominals'],
+    'bulgarian-split-squat': ['quadriceps', 'glutes', 'hamstrings'], 'cossack-squat': ['adductors', 'quadriceps', 'glutes'], 'broad-jump': ['glutes', 'quadriceps', 'calves'],
+    'box-jump': ['quadriceps', 'glutes', 'calves'], 'single-leg-rdl': ['hamstrings', 'glutes', 'lower back'], 'single-leg-calf-raise': ['calves'],
+    'down-dog': ['hamstrings', 'calves', 'shoulders'], 'leg-swing': ['hamstrings', 'quadriceps'],
+    'run-in-place': ['calves', 'quadriceps'], 'jog-easy': ['quadriceps', 'calves', 'hamstrings'], 'run-steady': ['quadriceps', 'calves', 'hamstrings'],
+    'sprint': ['hamstrings', 'glutes', 'quadriceps', 'calves'], 'hill-sprint': ['glutes', 'quadriceps', 'calves', 'hamstrings'], 'power-hike': ['glutes', 'quadriceps', 'calves'],
+    'stair-climb': ['quadriceps', 'glutes', 'calves'], 'walk-recovery': ['calves'], 'downhill-run': ['quadriceps', 'calves'], 'a-skip': ['quadriceps', 'calves', 'abdominals'],
+    'strides': ['hamstrings', 'quadriceps', 'calves'], 'backpack-hike': ['quadriceps', 'glutes', 'calves', 'lower back'],
   };
   const FROM_GROUP = { Pecho: ['chest'], Espalda: ['middle back', 'lats'], Hombros: ['shoulders'], Brazos: ['triceps', 'biceps'], Abdomen: ['abdominals'], Piernas: ['quadriceps', 'hamstrings'], 'Glúteos': ['glutes'], Cardio: ['quadriceps', 'calves'] };
   const FROM_ES = Object.fromEntries(Object.entries(LABEL).map(([k, v]) => [v, k]));

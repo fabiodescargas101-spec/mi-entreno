@@ -17,7 +17,7 @@ Las calorías se calculan con el método MET: `kcal = MET × 3,5 × peso ÷ 200 
 ## Modo combate
 
 - **Tema** negro, naranja y rojo.
-- **Avatar animado** que hace cada ejercicio. Clases: **Spartan** (visor dorado), **Gear** (hombreras y pañuelo rojo), **Slayer** (armadura infernal) y **Ninja** (bufanda roja). Se elige en Ajustes.
+- **Avatar animado** que hace cada ejercicio. Clases: **Atleta** y **Atleta (ella)** (humanos), **Spartan** (visor dorado), **Gear** (hombreras y pañuelo rojo), **Slayer** (armadura infernal) y **Ninja** (bufanda roja). Se elige en Ajustes.
 - **Nombres de guerra**: misiones como *Sprint Spartan*, *Abs Spartanas*, *Bloqueo de Armadura Spartan*, *Protocolo Slayer*, *Sigilo Ninja*… y ejercicios como *Burpees del Infierno*, *Cobertura de Gears*, *Ascensor Gravitatorio* o *Pica del Clan Hayabusa*. Debajo siempre aparece el nombre real.
 - **XP y rangos**: cada misión da XP (calorías + bonus). Rangos: Recluta → Pelotón Delta · Novato → Soldado de la COG → Paracaidista ODST → Spartan → Spartan Veterano → Slayer → Maestro Ninja del Dragón → Leyenda.
 
@@ -56,6 +56,33 @@ En **Arsenal → Biblioteca libre** hay más de 800 ejercicios gratuitos con fot
 - Los nombres de los 188 ejercicios sin equipo están traducidos al español. El resto aparece con su nombre original y las instrucciones están en inglés.
 - La lista y las fotos se descargan de GitHub la primera vez y se guardan para usarlas sin conexión.
 - Los ejercicios que añades se guardan en tu Drive junto con el resto de tus datos.
+
+## Base: tu día de un vistazo
+
+- **Cardio semanal**: anillo con puntos (1 por minuto moderado, 2 por minuto intenso). Meta por defecto 150 (recomendación de la OMS).
+- **Pasos, Recuperación y Sueño**: pasos y sueño los anotas tú. La recuperación se estima con la carga de tus entrenos de las últimas 72 h y las horas que dormiste.
+- **＋ Registrar**: actividad (subir el cerro, correr, bici… con minutos, distancia y desnivel), medidas y grasa, comida, hidratación, sueño, pasos y peso.
+- **🏃 Iniciar**: continúa tu campaña o repite tu última misión. **✎** cambia tus metas.
+
+## Calorías gastadas (estimado)
+
+Gasto del día = **basal** (Mifflin-St Jeor) + **día a día** (por tus pasos, o por tu nivel de actividad si no los anotas) + **entrenos y actividades** (método MET, sin contar lo que gastarías en reposo). En las actividades con desnivel se suma el trabajo de subir tu peso. Con lo que comes calcula el déficit o superávit y cuánto conviene comer para tu objetivo. Todo son estimaciones.
+
+## Medidas corporales
+
+Cuello, pecho, brazo, cintura, cadera, muslo y pantorrilla, con fecha. En Progreso ves cuánto ha cambiado cada una, una gráfica por medida y tu **% de grasa** (método de la Marina de EE. UU. o el que te dé tu báscula), con masa grasa y magra.
+
+## Misiones (estilo app de entrenos en casa)
+
+- **Campañas** (packs de varios días con «Empezar día N»): **Operación Cumbre** (preparación de 4 semanas para subir un cerro), **Forja de Calistenia** (12 días) y **De Recluta a Spartan** (20 días).
+- **Habilidades de armadura**: cada misión tiene un tipo — ⚡ Sprint (carrera y trail), 🚀 Propulsor (potencia y saltos), 🛡️ Bloqueo de armadura (fuerza y core), 👁️ Camuflaje activo (sin saltos), 💨 Evasión (agilidad) y 💠 Escudo regenerador (movilidad).
+- **Centrado en el cuerpo**: abdominales, brazos, pecho, piernas, glúteos, espalda y hombros en 3 niveles (⚡ Normal, ⚡⚡ Heroico, ⚡⚡⚡ Legendario), con la fecha de la última vez.
+- **Filtros rápidos** (reciente, 7–15 min, más de 15 min, quema grasa, calistenia, trail, estirar…), **Crea la tuya**, **Recomendado**, **Solo para ti**, **Estira y calienta** y **Objetivos populares**.
+- **Detalle de misión**: arrastra ≡ para reordenar, ⇄ para sustituir un ejercicio por otro parecido, y toca un ejercicio para ver la ficha (animación, duración con − / +, instrucciones, zona principal y navegación 2/22). Los cambios en las misiones de la app se guardan como ajuste tuyo y puedes restaurar el original.
+- **Calistenia**: dominadas, negativas, colgado activo, remo invertido, flexión arquero e hindú, L-sit, pino en pared, sentadilla búlgara y cosaca, salto horizontal y al escalón, peso muerto a una pierna…
+- **Carrera, trail y montaña**: trote suave, carrera continua, Sprint, sprint en cuesta, paso de montaña, escaleras, bajada técnica, skipping, rectas y marcha con mochila. Misiones como *Reconocimiento del Terreno*, *Habilidad de Armadura: Sprint*, *Sprint a la Cresta*, *Torre de Asalto*, *Marcha Forzada*, *Descenso del Barranco* y *Pulmones de Acero*.
+
+El avatar por defecto ahora es **Atleta**: una figura humana sin cara, con volumen, ropa deportiva y una silueta tenue de la posición final para que se vea el recorrido del movimiento. Los avatares blindados siguen disponibles en Ajustes.
 
 ## Paso 1 — Publicar la app gratis con GitHub Pages
 
